@@ -175,9 +175,9 @@ test('server.js full handshake: initialize then tools/list in one session', asyn
   assert.equal(initResp.id, 1);
   assert.equal(initResp.result.serverInfo.name, 'apifier');
 
-  // tools/list response
+  // tools/list response — count auto-scales with the manifest.
   assert.equal(listResp.id, 2);
-  assert.equal(listResp.result.tools.length, 5);
+  assert.equal(listResp.result.tools.length, MANIFEST.tools.length);
 });
 
 test('server.js returns -32601 for unknown method', async () => {

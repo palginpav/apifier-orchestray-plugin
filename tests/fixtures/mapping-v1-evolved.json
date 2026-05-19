@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "apifier_version": "0.3.0",
+  "kind": "apifier-mapping",
+  "service": {
+    "name": "pets-api",
+    "display_name": "Pets API",
+    "version": "2.0.0"
+  },
+  "source": {
+    "type": "openapi",
+    "url": "https://pets.example.com/openapi.json",
+    "file_path": null,
+    "fetched_at": "2026-05-19T12:00:00.000Z",
+    "sha256": "bbccddeeff00112233445566778899aabbccddeeff001122334455667788990011aa",
+    "bytes": 1280,
+    "robots_respected": true,
+    "parser": {
+      "name": "@scalar/openapi-parser",
+      "version": "0.28.4"
+    },
+    "parser_warnings": []
+  },
+  "auth": [
+    {
+      "id": "bearer-jwt",
+      "type": "api-key",
+      "description": "API key in header (was http-bearer, now changed — breaking).",
+      "in": "header",
+      "name": "X-API-Key"
+    }
+  ],
+  "servers": [
+    { "url": "https://api.pets.example.com/v2", "description": "production v2" }
+  ],
+  "endpoints": [
+    {
+      "id": "listPets",
+      "transport": "http",
+      "method": "GET",
+      "path": "/pets",
+      "summary": "List all pets.",
+      "description": "Returns a paginated list of pets. Now supports tag filter.",
+      "tags": ["pets"],
+      "path_params": [],
+      "query_params": [
+        {
+          "name": "limit",
+          "type": { "primitive": "integer" },
+          "required": false,
+          "description": "Max results to return.",
+          "default": 20,
+          "example": 10,
+          "enum": null,
+          "format": "int32",
+          "deprecated": false,
+          "style": null,
+          "explode": null
+        },
+        {
+          "name": "tag",
+          "type": { "primitive": "string" },
+          "required": false,
+          "description": "Filter by tag label.",
+          "default": null,
+          "example": "indoor",
+          "enum": null,
+          "format": null,
+          "deprecated": false,
+          "style": null,
+          "explode": null
+        }
+      ],
+      "headers": [
+        {
+          "name": "X-Request-Id",
+          "type": { "primitive": "string" },
+          "required": true,
+          "description": "Mandatory request correlation header (breaking — required header added).",
+          "default": null,
+          "example": "req-abc",
+          "enum": null,
+          "format": null,
+          "deprecated": false,
+          "style": null,
+          "explode": null
+        }
+      ],
+      "cookies": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "description": "OK.",
+          "content_type": "application/json",
+          "schema": { "array": { "$ref": "Pet" } },
+          "headers": []
+        },
+        "404": {
+          "description": "No pets found.",
+          "content_type": "application/json",
+          "schema": { "$ref": "ApiError" },
+          "headers": []
+        }
+      },
+      "error_codes": [],
+      "auth": ["bearer-jwt"],
+      "idempotency": { "method_intrinsic": true, "header": null, "description": null },
+      "deprecated": { "is_deprecated": false, "since": null, "replacement_endpoint_id": null, "sunset_at": null },
+      "pagination": null,
+      "rate_limit": null,
+      "examples": []
+    },
+    {
+      "id": "getPet",
+      "transport": "http",
+      "method": "GET",
+      "path": "/pets/{id}",
+      "summary": "Get a pet by id.",
+      "description": "Retrieve a single pet by its identifier. Updated description (patch).",
+      "tags": ["pets"],
+      "path_params": [
+        {
+          "name": "id",
+          "type": { "primitive": "string" },
+          "required": true,
+          "description": "Pet identifier.",
+          "default": null,
+          "example": "pet_abc123",
+          "enum": null,
+          "format": "uuid",
+          "deprecated": false,
+          "style": null,
+          "explode": null
+        }
+      ],
+      "query_params": [],
+      "headers": [],
+      "cookies": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "description": "OK.",
+          "content_type": "application/json",
+          "schema": { "$ref": "Pet" },
+          "headers": []
+        },
+        "404": {
+          "description": "Pet not found.",
+          "content_type": "application/json",
+          "schema": { "$ref": "ApiError" },
+          "headers": []
+        }
+      },
+      "error_codes": ["PET_NOT_FOUND"],
+      "auth": ["bearer-jwt"],
+      "idempotency": { "method_intrinsic": true, "header": null, "description": null },
+      "deprecated": { "is_deprecated": false, "since": null, "replacement_endpoint_id": null, "sunset_at": null },
+      "pagination": null,
+      "rate_limit": null,
+      "examples": []
+    },
+    {
+      "id": "createPet",
+      "transport": "http",
+      "method": "POST",
+      "path": "/pets",
+      "summary": "Create a new pet.",
+      "description": "Add a new pet to the registry (new endpoint — non_breaking).",
+      "tags": ["pets"],
+      "path_params": [],
+      "query_params": [],
+      "headers": [],
+      "cookies": [],
+      "body": {
+        "required": true,
+        "content_type": "application/json",
+        "schema": { "$ref": "Pet" },
+        "encoding": null
+      },
+      "responses": {
+        "201": {
+          "description": "Created.",
+          "content_type": "application/json",
+          "schema": { "$ref": "Pet" },
+          "headers": []
+        }
+      },
+      "error_codes": [],
+      "auth": ["bearer-jwt"],
+      "idempotency": { "method_intrinsic": false, "header": null, "description": null },
+      "deprecated": { "is_deprecated": false, "since": null, "replacement_endpoint_id": null, "sunset_at": null },
+      "pagination": null,
+      "rate_limit": null,
+      "examples": []
+    }
+  ],
+  "models": [
+    {
+      "name": "Pet",
+      "kind": "object",
+      "description": "A pet in the registry.",
+      "fields": [
+        {
+          "name": "id",
+          "type": { "primitive": "string" },
+          "required": true,
+          "format": "uuid",
+          "description": "Pet identifier."
+        },
+        {
+          "name": "name",
+          "type": { "primitive": "string" },
+          "required": true,
+          "description": "Pet name."
+        },
+        {
+          "name": "status",
+          "type": { "primitive": "string" },
+          "required": false,
+          "description": "Adoption status.",
+          "enum": ["available", "pending", "adopted"]
+        },
+        {
+          "name": "species",
+          "type": { "primitive": "string" },
+          "required": true,
+          "description": "Animal species (required field added — breaking)."
+        },
+        {
+          "name": "nickname",
+          "type": { "primitive": "string" },
+          "required": false,
+          "description": "Optional nickname (optional field added — non_breaking)."
+        }
+      ]
+    },
+    {
+      "name": "Tag",
+      "kind": "object",
+      "description": "A label that can be applied to a pet.",
+      "fields": [
+        {
+          "name": "id",
+          "type": { "primitive": "string" },
+          "required": true,
+          "description": "Tag identifier."
+        },
+        {
+          "name": "label",
+          "type": { "primitive": "string" },
+          "required": true,
+          "description": "Human-readable label.",
+          "enum": ["indoor", "outdoor", "hypoallergenic", "senior"]
+        }
+      ]
+    },
+    {
+      "name": "ApiError",
+      "kind": "object",
+      "description": "Standard error envelope.",
+      "fields": [
+        {
+          "name": "code",
+          "type": { "primitive": "string" },
+          "required": true,
+          "description": "Machine-readable error code."
+        },
+        {
+          "name": "message",
+          "type": { "primitive": "string" },
+          "required": true,
+          "description": "Human-readable message."
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": "PET_NOT_FOUND",
+      "scope": "endpoint:GET /pets/{id}",
+      "status": 404,
+      "body": { "$ref": "ApiError" },
+      "description": "The requested pet does not exist."
+    }
+  ],
+  "examples": [],
+  "extensions": {}
+}

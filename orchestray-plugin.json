@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "apifier",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Scrape and ingest external API documentation (OpenAPI, Postman, AsyncAPI, GraphQL, gRPC, HTML, Markdown) into a portable apifier-mapping.json file; generate language-specific client modules from a mapping; validate and self-check.",
   "entrypoint": "server.js",
   "transport": "stdio",
@@ -95,6 +95,20 @@
         "type": "object",
         "properties": {
           "dir": { "type": "string", "description": "Mappings dir to scan; defaults to ~/.orchestray/apifier/mappings/." }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "apifier-diff",
+      "description": "Compare two apifier-mapping.json files and report the SemVer impact of the change (breaking / non_breaking / patch). Useful for CI gates that block PRs introducing breaking API changes. Categorises additions, removals, and modifications across endpoints, parameters, responses, models, and auth schemes.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["mapping_a", "mapping_b"],
+        "properties": {
+          "mapping_a": { "type": "string", "description": "Absolute path to the BASELINE mapping (the 'old' version)." },
+          "mapping_b": { "type": "string", "description": "Absolute path to the CANDIDATE mapping (the 'new' version)." },
+          "format":    { "type": "string", "enum": ["structured", "summary"], "default": "structured", "description": "structured = full ChangeReport JSON. summary = top-line counts + verdict." }
         },
         "additionalProperties": false
       }
