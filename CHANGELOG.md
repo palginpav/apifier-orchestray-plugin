@@ -2,6 +2,114 @@
 All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog (https://keepachangelog.com/en/1.1.0/).
 
+## [0.4.0] — 2026-05-19
+
+### Added
+- (Wave 8) **`apifier-watch` MCP tool** (7th tool). Composes
+  `apifier-scrape` + `apifier-diff` into a single atomic call that
+  returns `should_block: boolean` for CI gates. Configurable severity
+  threshold via `block_on` (`breaking` / `minor` / `patch` / `none`).
+  Pairs with `apifier-diff` to form the complete API drift-detection
+  loop. Timing buckets — `scrape_ms`, `baseline_load_ms`, `diff_ms`,
+  `total_ms` — let CI measure where the per-tick budget is spent.
+- (Wave 6B) **GraphQL SDL ingest** (6th source format). Hand-rolled
+  pure-JS SDL parser (no `graphql-js` dep). Each `type Query` /
+  `Mutation` / `Subscription` root field becomes an endpoint with
+  `transport: "graphql"`. Explicit `schema { query: X, mutation: Y }`
+  blocks correctly rebind non-conventional root names. `@deprecated`
+  directive flows to endpoint deprecation. Custom scalars / enums /
+  unions / inputs all map cleanly into the IR models.
+  `mapping.extensions["x-source-format"] = "graphql-sdl"` +
+  `mapping.extensions["x-graphql-root-types"]`.
+- (Wave 4D) **`go-net-http` codegen** (3rd language ecosystem — Go
+  stdlib net/http). Validated by both `gofmt -e` and `go vet ./...`
+  on every shipped output. Auth helpers (`SetBearerToken`,
+  `SetApiKey` w/ header AND query positions, `SetBasicAuth`), error
+  class hierarchy via composition, context-aware methods, per-endpoint
+  args struct. Byte-deterministic; unused-imports tracking prevents
+  `go vet` failures on endpoint-less mappings.
+
+### Changed
+- Codegen registry now lists 4 LIVE targets (was 3 after Wave 4C):
+  `ts-fetch` (4A), `python-requests` (4B), `openapi-3.1` (4C),
+  `go-net-http` (4D). Planned: `ts-axios`, `python-httpx` (4E);
+  `curl-shell` (6+).
+- Tool surface: 5 → 6 → 7 (apifier-diff in Wave 7; apifier-watch
+  in Wave 8). All tools auto-discover via `TOOL_DECLS.length` in
+  the dispatcher; manifest is the single source of truth.
+- Plugin manifest description updated to advertise all four live
+  codegen targets and to enumerate the 4E-planned variants.
+- `apifier-scrape` + `apifier-watch` `source_type` enums now in
+  parity (graphql-introspection is in both).
+
+### Security
+- `lib/diff/compare.js` is a pure function (no I/O); the diff
+  surface is exhaustively unit-testable.
+- `apifier-watch` baseline_path routed through `lib/path-guard.js`;
+  cross-allowed-root inputs are rejected.
+- Domain error codes added: `MappingDiffError(-32012)`,
+  `GraphQLParseError(-32013)`, `WatchError(-32014)`. All remap to
+  JSON-RPC `-32603` with `data.domain_code` for diagnostic
+  traceability without leaking internals to callers.
+
+### Fixed
+- (W36) GraphQL SDL union member fields previously always empty
+  (`fields: []`) due to a tokenizer skip-loop that consumed the
+  `= A | B | C` body before the union-specific parser ran. One-
+  character fix: the implements-skip loop now also stops at `=`.
+  Regression test pins this down.
+- (W30) Go codegen for zero-endpoint mappings now passes `go vet`
+  (unused-imports bug fixed; `context`/`io`/`net/url` only added
+  when `endpoints.length > 0`).
+- (W30) `lib/handlers/scrape.js` cross-origin redirect_to_spec
+  path now throws `HTMLParseError` with an actionable message
+  instead of crashing on null IR.
+- (W34) `lib/diff/compare.js` adds the missing
+  `response_example_only_changed` change category (patch-impact)
+  with subsumption when schema also changed.
+- (W32) Postman `_walkItems` recursion guarded by
+  `MAX_FOLDER_DEPTH = 100`; variable substitution now also applies
+  to `req.url.raw` / `host[]` in structured URL objects (the
+  common `{{baseUrl}}` pattern).
+
+### Codegen targets
+- LIVE: ts-fetch (4A), python-requests (4B), openapi-3.1 (4C),
+  go-net-http (4D).
+- Planned: ts-axios (4E), python-httpx (4E); curl-shell (6+).
+
+## [0.3.0] — 2026-05-19
+
+### Added
+- (Wave 7) **`apifier-diff` MCP tool** (6th tool). Pure-function
+  comparator (`lib/diff/compare.js`) classifies the delta between
+  two `apifier-mapping.json` files across 24 SemVer categories
+  (endpoint add/remove/modify, param add/remove/required-toggle/
+  type-change, response add/remove/schema-change/example-change,
+  auth add/remove/scheme-change, model add/remove + field add/
+  remove/type-change, enum value add/remove, description-only).
+  Verdict cascade: `breaking>0 → major; non_breaking>0 → minor;
+  patch>0 → patch; else compatible`. Endpoint identity is
+  `<method> <path>`. Optional `format: "summary"` for CI-sized
+  responses.
+- (Wave 4C) **`openapi-3.1` codegen** (round-trip OpenAPI 3.1 YAML
+  emitter). Pure-string hand-rolled YAML emitter — no `js-yaml.dump`
+  call — for byte-deterministic output. Canonical key order across
+  root / operation / parameter / response / schema / securityScheme.
+  Round-trip property verified: scrape → mapping → emit YAML →
+  re-parse via `parseOpenAPI` → identical endpoint set + 0 warnings.
+- (Wave 6A) **Postman v2.1 collection ingest** (5th source format).
+  Pure-JSON walker; recursive `item[]` traversal; folder hierarchy
+  → `endpoint.tags[]`; `{{var}}` placeholder substitution; per-mode
+  body handling (raw/JSON, urlencoded, formdata, file, none); auth
+  translation (bearer/basic/apikey/oauth2). `mapping.extensions
+  ["x-source-format"] = "postman"`, `x-postman-id` preserves
+  original collection id.
+
+### Codegen targets at v0.3.0
+- LIVE: ts-fetch (4A), python-requests (4B), openapi-3.1 (4C).
+- Planned: go-net-http (4D), ts-axios, python-httpx (4E);
+  curl-shell (6+).
+
 ## [0.2.0] — 2026-05-19
 
 ### Added
@@ -91,5 +199,7 @@ The format is based on Keep a Changelog (https://keepachangelog.com/en/1.1.0/).
 ## [0.0.1] — pre-history
 - Internal scaffold only; never published. Commit: `f7f7916`.
 
+[0.4.0]: https://github.com/palginpav/apifier-orchestray-plugin/releases/tag/v0.4.0
+[0.3.0]: https://github.com/palginpav/apifier-orchestray-plugin/releases/tag/v0.3.0
 [0.2.0]: https://github.com/palginpav/apifier-orchestray-plugin/releases/tag/v0.2.0
 [0.1.0]: https://github.com/palginpav/apifier-orchestray-plugin/releases/tag/v0.1.0

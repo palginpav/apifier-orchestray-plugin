@@ -15,14 +15,21 @@ Additional source formats — Postman collections, AsyncAPI, GraphQL schemas, gR
 
 ## Status
 
-**v0.2.0 — adds HTML doc-site scraping (5 archetypes) and Markdown ingestion alongside
-the existing OpenAPI JSON/YAML support. ts-fetch + python-requests codegen targets
-remain live.**
-All 5 MCP tools are real: `apifier-scrape` ingests OpenAPI 3.0/3.1 (JSON or YAML),
-HTML doc sites (Stripe/Slate, Docusaurus, GitBook, generic), and Markdown API docs,
-`apifier-generate` emits typed TypeScript fetch clients and Python requests clients,
-`apifier-validate` / `apifier-list` / `apifier-doctor` are fully operational.
-See [ROADMAP.md](ROADMAP.md) for planned targets (ts-axios, python-httpx, openapi-3.1).
+**v0.4.0 — 6 source formats × 4 codegen targets × 7 MCP tools.** The plugin's
+brief surface area is fully populated:
+
+- **Scrape (6 input formats)**: OpenAPI 3.0/3.1 (JSON or YAML), HTML doc sites
+  (Stripe/Slate, Docusaurus, GitBook, OpenAPI-rendered viewers like Swagger UI,
+  Generic), Markdown API docs, Postman v2.1 collections, GraphQL SDL.
+- **Generate (4 live codegen targets)**: `ts-fetch` (TypeScript fetch client),
+  `python-requests` (Python 3.8+), `openapi-3.1` (round-trip OAS YAML),
+  `go-net-http` (Go stdlib). Remaining planned: `ts-axios`, `python-httpx`,
+  `curl-shell` (see [ROADMAP.md](ROADMAP.md)).
+- **CI workflow**: `apifier-diff` classifies mapping deltas across 24 SemVer
+  change categories; `apifier-watch` composes scrape + diff into a single
+  `should_block` decision for CI gates.
+- **7 MCP tools** all live: `apifier-scrape`, `apifier-list`, `apifier-generate`,
+  `apifier-validate`, `apifier-doctor`, `apifier-diff`, `apifier-watch`.
 
 ## How it works
 

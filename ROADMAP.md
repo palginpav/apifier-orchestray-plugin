@@ -92,11 +92,35 @@ client. Byte-deterministic; py_compile clean.
 
 ---
 
-## Wave 4C — Additional codegen targets (OPEN)
+## Wave 4C — openapi-3.1 round-trip codegen (DONE)
 
-Planned targets: `ts-axios`, `python-httpx`, `openapi-3.1`. Implement
+**Commits:** `357bb8c` feat, `cfb8d59` fix nits, `1fe8331` chore (-275 LOC).
+
+Hand-rolled byte-deterministic YAML emitter; round-trip property verified
+(scrape → mapping → emit OAS 3.1 → re-parse via `parseOpenAPI` → identical
+endpoint set, 0 warnings). Non-HTTP transport endpoints (graphql/grpc/ws/etc.)
+surfaced in header warnings. Parameter defaults serialised in `_emitSchema`.
+
+---
+
+## Wave 4D — go-net-http codegen (DONE — 3rd language ecosystem)
+
+**Commits:** `49d75b8` feat, `e31d6a8` fix nits.
+
+Go stdlib `net/http` client generator. Validated by both `gofmt -e` AND
+`go vet ./...` on every shipped output. Per-endpoint args struct (Go has no
+kwargs); auth helpers (Set{Bearer,ApiKey,Basic}Auth); context-aware methods;
+unused-import tracking; api-key with `in:'query'` correctly appends to URL.
+
+---
+
+## Wave 4E — Remaining codegen targets (OPEN)
+
+Planned: `ts-axios` (axios variant of ts-fetch), `python-httpx` (httpx variant
+of python-requests), `curl-shell` (shell scripts for ops use; Wave 4E moves
+from 6+ to 4E per the v0.4.0 plan). Each implements
 `lib/codegen/<target>.js` exporting `generate(mapping, opts) → { text, ext }`,
-register in `_registry.js`.
+registered in `_registry.js`.
 
 ---
 
@@ -116,6 +140,68 @@ HTML + Markdown support. Three real-world-style fixtures (Petstore YAML,
 Stripe-style HTML, GitHub-style Markdown) and a new integration test
 (`tests/integration/real-world-formats.test.js`) round-trip each through
 scrape → validate → ts-fetch + python-requests codegen.
+
+---
+
+## Wave 5.3 — v0.4.0 Consolidation (DONE)
+
+CHANGELOG entries for [0.3.0] (apifier-diff + openapi-3.1 + Postman) and
+[0.4.0] (apifier-watch + GraphQL SDL + go-net-http) backfilled. ROADMAP
+refreshed to mark Waves 4C / 4D / 6A / 6B / 7 / 8 DONE with commit refs.
+Wave 4E (`ts-axios`, `python-httpx`, `curl-shell`) carried forward as the
+remaining codegen work.
+
+---
+
+## Wave 6A — Postman v2.1 collection ingest (DONE — 5th source format)
+
+**Commits:** `1733fd0` feat, `8890423` fix nits.
+
+Pure-JSON walker; recursive `item[]`; folder hierarchy → `endpoint.tags[]`;
+{{var}} substitution applies to both string-form `req.url` AND structured
+URL objects (`raw`/`host[]`/`path[]`/`protocol`); per-mode body handling
+(raw/JSON, urlencoded, formdata, file, none); auth translation. Recursion
+guarded by `MAX_FOLDER_DEPTH = 100`. `mapping.extensions['x-source-format']
+= 'postman'`, `x-postman-id` preserves the original collection id.
+
+---
+
+## Wave 6B — GraphQL SDL ingest (DONE — 6th source format)
+
+**Commits:** `ab883ae` feat, `5f01ec3` fix nits.
+
+Hand-rolled pure-JS SDL parser (no `graphql-js` dep). Each root field from
+`type Query` / `Mutation` / `Subscription` (or the explicit `schema { ... }`
+block rebound names) becomes an endpoint with `transport: "graphql"`.
+`@deprecated(reason: "...")` directive flows to endpoint deprecation. Models
+cover types / inputs / interfaces / unions / enums / scalars. Union
+member-fields preserved (W36 regression-fixed). ReDoS-safe (64 KB body in
+~2 ms).
+
+---
+
+## Wave 7 — apifier-diff MCP tool (DONE — 6th tool, v0.3.0)
+
+**Commits:** `f63d50e` feat, `23d1df9` fix nits.
+
+Pure-function `compareMapping(a, b) → ChangeReport` covering all 24 SemVer
+change categories (endpoint / param / response / auth / model / enum /
+description). Verdict cascade `breaking>0 → major; non_breaking>0 → minor;
+patch>0 → patch; else compatible`. `format: "summary"` option for CI-sized
+responses. Manifest version 0.2.0 → 0.3.0.
+
+---
+
+## Wave 8 — apifier-watch MCP tool (DONE — 7th tool, v0.4.0)
+
+**Commits:** `29225fe` feat, `a3b853e` fix nits.
+
+Composes apifier-scrape + apifier-diff into one atomic call returning
+`should_block: boolean` for CI gates. Configurable `block_on` threshold
+(`breaking` / `minor` / `patch` / `none`). Timing buckets: `scrape_ms`,
+`baseline_load_ms`, `diff_ms`, `total_ms` (sum within ±1 ms rounding).
+Manifest version 0.3.0 → 0.4.0. Path-guard on baseline_path; WatchError
+(-32014) on phase-tagged failures.
 
 ---
 
