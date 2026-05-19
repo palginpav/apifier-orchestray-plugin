@@ -1,0 +1,102 @@
+"""
+Complex Widget Service — multi-root schema for APIfier integration testing.
+"""
+
+schema {
+  query: QueryRoot
+  mutation: MutationRoot
+  subscription: SubscriptionRoot
+}
+
+scalar DateTime
+scalar JSON
+
+enum Status {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+interface Node {
+  id: ID!
+}
+
+union SearchResult = Widget | Category
+
+type Category {
+  id: ID!
+  name: String!
+  slug: String!
+}
+
+type Widget implements Node {
+  id: ID!
+  name: String!
+  description: String
+  status: Status!
+  category: Category
+  metadata: JSON
+  created_at: DateTime!
+  updated_at: DateTime
+}
+
+type WidgetPage {
+  items: [Widget!]!
+  total: Int!
+  has_more: Boolean!
+}
+
+input WidgetCreateInput {
+  name: String!
+  description: String
+  status: Status
+  category_id: ID
+}
+
+input WidgetUpdateInput {
+  name: String
+  description: String
+  status: Status
+  category_id: ID
+}
+
+type QueryRoot {
+  """ Fetch a single widget by its unique identifier """
+  widget(id: ID!): Widget
+
+  """ List widgets with optional filters and pagination """
+  widgets(status: Status, sort: SortOrder = ASC, limit: Int = 20, offset: Int = 0): WidgetPage!
+
+  """ Full-text search across widgets and categories """
+  search(query: String!, limit: Int = 10): [SearchResult!]!
+
+  """ Fetch all categories """
+  categories: [Category!]!
+}
+
+type MutationRoot {
+  """ Create a new widget """
+  createWidget(input: WidgetCreateInput!): Widget!
+
+  """ Update an existing widget """
+  updateWidget(id: ID!, input: WidgetUpdateInput!): Widget!
+
+  """ Archive a widget permanently """
+  deleteWidget(id: ID!): Boolean! @deprecated(reason: "Use archiveWidget instead.")
+
+  """ Archive a widget (soft delete) """
+  archiveWidget(id: ID!): Widget!
+}
+
+type SubscriptionRoot {
+  """ Subscribe to real-time widget updates """
+  widgetUpdated(id: ID!): Widget!
+
+  """ Subscribe to status changes for a category """
+  categoryWidgetStatusChanged(category_id: ID!, status: Status): Widget!
+}

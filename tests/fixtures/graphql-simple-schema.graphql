@@ -1,0 +1,30 @@
+"""
+Simple Widget API schema for testing.
+"""
+
+scalar DateTime
+
+enum Status {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+type Widget {
+  id: ID!
+  name: String!
+  description: String
+  status: Status!
+  created_at: DateTime
+}
+
+type Query {
+  """ Fetch a widget by id """
+  widget(id: ID!): Widget
+
+  """ List widgets with optional status filter """
+  widgets(status: Status, limit: Int = 25): [Widget!]!
+
+  """ Search widgets by name """
+  search(query: String!): [Widget!]!
+}
