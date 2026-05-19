@@ -62,7 +62,6 @@ test('handleList: non-existent dir returns zero count', async () => {
 test('handleList: one valid mapping returns correct metadata', async () => {
   const dir1 = fs.mkdtempSync(path.join(os.tmpdir(), 'apifier-list-one-'));
   try {
-    copyFixture.toString(); // noop
     const dest = path.join(dir1, 'widgets-api.apifier.json');
     fs.copyFileSync(SAMPLE_FIXTURE, dest);
 

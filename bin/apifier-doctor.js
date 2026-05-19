@@ -2,7 +2,10 @@
 'use strict';
 
 // bin/apifier-doctor.js — CLI health-check for the APIfier plugin install.
-// Checks node version, orchestray install, and mappings directory.
+// Runs 3 checks: node version, orchestray install, and mappings directory.
+// (The MCP apifier-doctor tool runs a 4th check, mappings_validity, which
+//  reads every mapping file — kept MCP-only to avoid slow CLI startups when
+//  mapping dirs grow. See lib/handlers/doctor.js for the shared check fns.)
 // Exit 0 on all-green; exit 1 if any check fails or warns.
 
 const {
