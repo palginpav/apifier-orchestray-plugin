@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "apifier",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Scrape and ingest external API documentation (OpenAPI, Postman, AsyncAPI, GraphQL, gRPC, HTML, Markdown) into a portable apifier-mapping.json file; generate language-specific client modules from a mapping; validate and self-check.",
   "entrypoint": "server.js",
   "transport": "stdio",
@@ -62,13 +62,13 @@
     },
     {
       "name": "apifier-generate",
-      "description": "Emit a language-specific client module from an apifier-mapping.json file. Live targets in v0.4.0: ts-fetch (byte-deterministic TypeScript fetch client — Wave 4A), python-requests (Python 3.8+ requests client — Wave 4B), openapi-3.1 (round-trip OpenAPI 3.1 YAML — Wave 4C), go-net-http (Go stdlib net/http client — Wave 4D), curl-shell (Bash 4+ ops script with set -euo pipefail strict mode — Wave 4E). Planned: ts-axios, python-httpx (future Wave 4F). Unsupported targets return a structured CodegenNotSupportedError with the scheduled wave.",
+      "description": "Emit a language-specific client module from an apifier-mapping.json file. All 7 codegen targets are live as of v0.5.0: ts-fetch (byte-deterministic TypeScript fetch client — Wave 4A), python-requests (Python 3.8+ requests client — Wave 4B), openapi-3.1 (round-trip OpenAPI 3.1 YAML — Wave 4C), go-net-http (Go stdlib net/http client — Wave 4D), curl-shell (Bash 4+ ops script with set -euo pipefail strict mode — Wave 4E), ts-axios (TypeScript axios client — Wave 4F), python-httpx (Python 3.8+ httpx sync client — Wave 4F).",
       "inputSchema": {
         "type": "object",
         "required": ["mapping_path", "target"],
         "properties": {
           "mapping_path": { "type": "string", "description": "Absolute path to an apifier-mapping.json file." },
-          "target":       { "type": "string", "enum": ["ts-fetch","ts-axios","python-requests","python-httpx","go-net-http","curl-shell","openapi-3.1"], "description": "Codegen target. Live: ts-fetch, python-requests, openapi-3.1, go-net-http, curl-shell. Unsupported: ts-axios, python-httpx (throw CodegenNotSupportedError)." },
+          "target":       { "type": "string", "enum": ["ts-fetch","ts-axios","python-requests","python-httpx","go-net-http","curl-shell","openapi-3.1"], "description": "Codegen target. All 7 targets are live: ts-fetch, ts-axios, python-requests, python-httpx, openapi-3.1, go-net-http, curl-shell." },
           "out_path":     { "type": "string", "description": "Absolute path to write the generated module. Must be inside an allowed root." },
           "overwrite":    { "type": "boolean", "default": false }
         },

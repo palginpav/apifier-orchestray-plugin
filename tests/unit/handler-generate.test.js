@@ -31,23 +31,28 @@ async function freshMapping(tag) {
 }
 
 // ---------------------------------------------------------------------------
-// (a) target: 'ts-axios' throws CodegenNotSupportedError with wave info
+// (a) target: 'ts-axios' generates successfully (Wave 4F — now live)
 // ---------------------------------------------------------------------------
 
-test('handleGenerate throws CodegenNotSupportedError for ts-axios target', async () => {
+test('handleGenerate writes a .ts file for ts-axios target', async () => {
   const mappingPath = await freshMapping('ts-axios');
-  await assert.rejects(
-    () => handleGenerate({ mapping_path: mappingPath, target: 'ts-axios', out_path: path.join(os.tmpdir(), 'test.ts') }),
-    (err) => {
-      assert.ok(err instanceof CodegenNotSupportedError, `expected CodegenNotSupportedError, got ${err.constructor.name}`);
-      assert.equal(err.code, -32007, 'must have code -32007');
-      assert.ok(err.message.includes('ts-axios'), 'message must include target name');
-      assert.ok(err.message.includes('wave') || err.message.includes('Wave'), 'message must mention wave');
-      assert.equal(err.data.target, 'ts-axios', 'data.target must be ts-axios');
-      assert.ok(err.data.scheduled_wave, 'data.scheduled_wave must be set');
-      return true;
-    }
-  );
+  const outFile = path.join(os.tmpdir(), `generate-test-ts-axios-${Date.now()}.ts`);
+  try {
+    const result = await handleGenerate({
+      mapping_path: mappingPath,
+      target:       'ts-axios',
+      out_path:     outFile,
+      overwrite:    true,
+    });
+    assert.ok(fs.existsSync(outFile), 'output file must exist');
+    assert.equal(result.output_path, outFile, 'output_path must match out_path');
+    assert.equal(result.target, 'ts-axios', 'target must be ts-axios');
+    assert.ok(result.bytes_written > 0, 'bytes_written must be positive');
+    const content = fs.readFileSync(outFile, 'utf8');
+    assert.ok(content.includes('axios'), 'generated file must reference axios');
+  } finally {
+    if (fs.existsSync(outFile)) fs.unlinkSync(outFile);
+  }
 });
 
 // ---------------------------------------------------------------------------

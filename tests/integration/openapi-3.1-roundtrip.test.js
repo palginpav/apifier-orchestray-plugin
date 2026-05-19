@@ -162,47 +162,16 @@ test('openapi-3.1 round-trip: curl-shell target is now supported (wave 4E)', asy
 });
 
 // ---------------------------------------------------------------------------
-// W40-R-02 regression guard: ts-axios + python-httpx are the only remaining
-// unsupported codegen targets. They MUST throw CodegenNotSupportedError until
-// their respective waves ship. Without this test, a future wave that
-// accidentally registers a stub handler would have no integration safety net.
+// Wave 4F completeness: ALL 7 codegen targets are now LIVE.
+// This test replaces the W40-R-02 unsupported-guard for-loop.
+// It catches a future regression where a new target is added but not wired.
 // ---------------------------------------------------------------------------
 
-for (const stillUnsupportedTarget of ['ts-axios', 'python-httpx']) {
-  test(`unsupported codegen guard: target '${stillUnsupportedTarget}' throws CodegenNotSupportedError`, async () => {
-    const { handleGenerate: hg } = require('../../lib/handlers/generate');
-    const { handleScrape }       = require('../../lib/handlers/scrape');
-    const { CodegenNotSupportedError } = require('../../lib/errors');
-
-    const scrapeResult = await handleScrape({
-      source:       FIXTURE_PATH,
-      service_name: `oai31-unsupported-${stillUnsupportedTarget}-check`,
-      overwrite:    true,
-    });
-
-    const ext = stillUnsupportedTarget.startsWith('ts-') ? '.ts' : '.py';
-    const outFile = path.join(os.tmpdir(),
-      `apifier-unsupported-${stillUnsupportedTarget}-${process.pid}${ext}`);
-
-    let thrown = null;
-    try {
-      await hg({
-        mapping_path: scrapeResult.output_path,
-        target:       stillUnsupportedTarget,
-        out_path:     outFile,
-        overwrite:    true,
-      });
-    } catch (err) {
-      thrown = err;
-    }
-
-    assert.ok(thrown, `must throw for ${stillUnsupportedTarget}`);
-    assert.equal(thrown.constructor.name, 'CodegenNotSupportedError',
-      `must be CodegenNotSupportedError (got ${thrown.constructor.name})`);
-    assert.match(thrown.message, /\b(wave|not\s+(?:yet\s+)?supported)\b/i,
-      'error message must reference the scheduled wave or unsupported state');
-
-    // Cleanup (file shouldn't exist anyway).
-    try { fs.unlinkSync(outFile); } catch (_) { /* ignore */ }
-  });
-}
+test('completeness: every registry target is now LIVE (no unsupported codegen)', () => {
+  const registry = require('../../lib/codegen/_registry');
+  const list = registry.list();
+  const unsupported = list.filter(t => !t.supported);
+  assert.equal(unsupported.length, 0,
+    `every codegen target must be supported after Wave 4F — found unsupported: ${unsupported.map(t => t.id).join(', ')}`);
+  assert.equal(list.length, 7, 'must have exactly 7 codegen targets');
+});

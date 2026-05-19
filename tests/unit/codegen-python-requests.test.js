@@ -243,15 +243,16 @@ test('registry lists python-requests as supported', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Registry: ts-axios still unsupported
+// Registry: ts-axios is now supported (Wave 4F)
 // ---------------------------------------------------------------------------
 
-test('registry still marks ts-axios as unsupported', () => {
+test('registry marks ts-axios as supported (Wave 4F)', () => {
   const registry = require(path.join(__dirname, '../../lib/codegen/_registry'));
   const list = registry.list();
   const entry = list.find(t => t.id === 'ts-axios');
-  assert.ok(entry, 'ts-axios must remain in registry');
-  assert.equal(entry.supported, false, 'ts-axios must remain unsupported');
+  assert.ok(entry, 'ts-axios must be in registry');
+  assert.equal(entry.supported, true, 'ts-axios must be supported after Wave 4F');
+  assert.equal(entry.wave, '4F', 'ts-axios wave must be 4F');
 });
 
 // ---------------------------------------------------------------------------

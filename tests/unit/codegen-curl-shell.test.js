@@ -293,12 +293,12 @@ test('registry shows curl-shell as supported with wave 4E', () => {
   assert.equal(curlTarget.supported, true, 'curl-shell must be supported');
   assert.equal(curlTarget.wave, '4E', 'curl-shell wave must be 4E');
   assert.equal(curlTarget.ext, '.sh', 'curl-shell ext must be .sh');
-  // All 5 supported targets
+  // All 7 supported targets (Wave 4F: ts-axios + python-httpx added)
   const supported = targets.filter(t => t.supported).map(t => t.id).sort();
   assert.ok(supported.includes('ts-fetch'), 'ts-fetch must be supported');
   assert.ok(supported.includes('python-requests'), 'python-requests must be supported');
   assert.ok(supported.includes('openapi-3.1'), 'openapi-3.1 must be supported');
   assert.ok(supported.includes('go-net-http'), 'go-net-http must be supported');
   assert.ok(supported.includes('curl-shell'), 'curl-shell must be supported');
-  assert.equal(supported.length, 5, 'exactly 5 targets must be supported');
+  assert.equal(supported.length, 7, 'exactly 7 targets must be supported after Wave 4F');
 });
