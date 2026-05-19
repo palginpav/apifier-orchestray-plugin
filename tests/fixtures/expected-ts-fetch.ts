@@ -117,7 +117,7 @@ export class WidgetsApiClient {
     const _res = await fetch(_url, { method: "GET", headers: _headers });
     if (_res.status === 200) return _res.json() as Promise<Widget>;
     if (_res.status === 404) throw new ApifierNotFoundError(await _res.text());
-    if (_res.status >= 200 && _res.status < 300) return _res.json() as Promise<ReturnType<typeof this.getWidget>>;
+    if (_res.status >= 200 && _res.status < 300) return _res.json() as Promise<Widget>;
     if (_res.status >= 400 && _res.status < 500) throw new ApifierClientError(await _res.text(), _res.status);
     throw new ApifierServerError(await _res.text(), _res.status);
   }
@@ -131,7 +131,7 @@ export class WidgetsApiClient {
     const _res = await fetch(_url, { method: "POST", headers: _headers, body: JSON.stringify(args.body) });
     if (_res.status === 201) return _res.json() as Promise<Widget>;
     if (_res.status === 400) throw new ApifierValidationError(await _res.text());
-    if (_res.status >= 200 && _res.status < 300) return _res.json() as Promise<ReturnType<typeof this.createWidget>>;
+    if (_res.status >= 200 && _res.status < 300) return _res.json() as Promise<Widget>;
     if (_res.status >= 400 && _res.status < 500) throw new ApifierClientError(await _res.text(), _res.status);
     throw new ApifierServerError(await _res.text(), _res.status);
   }
