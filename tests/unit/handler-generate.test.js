@@ -178,23 +178,27 @@ test('handleGenerate fingerprint matches sha256 of the written file', async () =
 });
 
 // ---------------------------------------------------------------------------
-// (g) target: 'python-requests' also throws CodegenNotSupportedError
+// (g) target: 'python-requests' now supported (wave 4B) — generates a .py file
 // ---------------------------------------------------------------------------
 
-test('handleGenerate throws CodegenNotSupportedError for python-requests target', async () => {
+test('handleGenerate succeeds for python-requests target (wave 4B)', async () => {
   const mappingPath = await freshMapping('py-requests');
-  await assert.rejects(
-    () => handleGenerate({
+  const outFile = path.join(os.tmpdir(), `test-py-${Date.now()}.py`);
+  try {
+    const result = await handleGenerate({
       mapping_path: mappingPath,
       target:       'python-requests',
-      out_path:     path.join(os.tmpdir(), 'test.py'),
-    }),
-    (err) => {
-      assert.ok(err instanceof CodegenNotSupportedError, `expected CodegenNotSupportedError, got ${err.constructor.name}`);
-      assert.equal(err.data.target, 'python-requests');
-      return true;
-    }
-  );
+      out_path:     outFile,
+      overwrite:    true,
+    });
+    assert.ok(result.output_path.endsWith('.py'), 'output path must end with .py');
+    assert.ok(result.bytes_written > 0, 'must write non-zero bytes');
+    assert.ok(fs.existsSync(result.output_path), 'output file must exist');
+    const content = fs.readFileSync(result.output_path, 'utf8');
+    assert.ok(content.includes('class'), 'generated .py must contain class definitions');
+  } finally {
+    if (fs.existsSync(outFile)) fs.unlinkSync(outFile);
+  }
 });
 
 // ---------------------------------------------------------------------------
