@@ -1,0 +1,21 @@
+# sample-robots.txt — test fixture covering UA-specific rules, wildcards, and $ anchors.
+
+User-agent: *
+Disallow: /admin/
+Disallow: /private/
+Allow: /private/public-doc.html
+Disallow: /tmp/
+Allow: /tmp/shared/
+
+User-agent: apifier
+Allow: /api/
+Allow: /api/v2/
+Disallow: /api/internal/
+Allow: /static/*.css
+Disallow: /static/
+Disallow: /downloads/
+Allow: /downloads/free/
+Disallow: /locked$
+
+User-agent: badbot
+Disallow: /
