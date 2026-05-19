@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "apifier",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Scrape and ingest external API documentation (OpenAPI, Postman, AsyncAPI, GraphQL, gRPC, HTML, Markdown) into a portable apifier-mapping.json file; generate language-specific client modules from a mapping; validate and self-check.",
   "entrypoint": "server.js",
   "transport": "stdio",
@@ -62,13 +62,13 @@
     },
     {
       "name": "apifier-generate",
-      "description": "Emit a language-specific client module from an apifier-mapping.json file. Stub in v0.0.1 — returns a placeholder file with the chosen target indicating future codegen support.",
+      "description": "Emit a language-specific client module from an apifier-mapping.json file. Live targets in v0.1.0: ts-fetch (byte-deterministic TypeScript fetch client) and python-requests (Python 3.8+ requests client). Planned: ts-axios, python-httpx, openapi-3.1 (Wave 4C); go-net-http, curl-shell (Wave 6+). Unsupported targets return a structured CodegenNotSupportedError with the scheduled wave.",
       "inputSchema": {
         "type": "object",
         "required": ["mapping_path", "target"],
         "properties": {
           "mapping_path": { "type": "string", "description": "Absolute path to an apifier-mapping.json file." },
-          "target":       { "type": "string", "enum": ["ts-fetch","ts-axios","python-requests","python-httpx","go-net-http","curl-shell","openapi-3.1"], "description": "Codegen target. v0.0.1 ships stubs only." },
+          "target":       { "type": "string", "enum": ["ts-fetch","ts-axios","python-requests","python-httpx","go-net-http","curl-shell","openapi-3.1"], "description": "Codegen target. Live: ts-fetch, python-requests. Others throw CodegenNotSupportedError." },
           "out_path":     { "type": "string", "description": "Absolute path to write the generated module. Must be inside an allowed root." },
           "overwrite":    { "type": "boolean", "default": false }
         },

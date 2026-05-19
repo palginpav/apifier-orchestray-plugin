@@ -1,12 +1,15 @@
 # APIfier — API Doc Scraper & Client Generator for Orchestray
 
-Scrape any service's API documentation into a reusable orchestray-compatible mapping
+Scrape a service's API documentation into a reusable orchestray-compatible mapping
 file, then generate ready-to-import API client modules in multiple languages. Point
-APIfier at an OpenAPI spec, a Postman collection, an AsyncAPI doc, a GraphQL schema,
-a `.proto` file, or a plain HTML/Markdown docs page — it normalises everything into a
-single portable `<service>.apifier.json` file. From that file you can emit a typed
-TypeScript fetch client, a Python requests client, or a clean OpenAPI 3.1 document
-without scraping the service again.
+APIfier at an **OpenAPI 3.0 or 3.1 spec** (JSON or YAML; URL, local file, or inline
+text) and it normalises it into a single portable `<service>.apifier.json` file. From
+that file you can emit a typed TypeScript `fetch` client or a Python `requests`
+client without scraping the service again.
+
+Additional source formats — Postman collections, AsyncAPI, GraphQL schemas, gRPC
+`.proto` files, HTML/Markdown docs pages — are planned for future waves. See
+[ROADMAP.md](ROADMAP.md) for the full plan.
 
 ## Status
 

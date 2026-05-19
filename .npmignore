@@ -1,4 +1,6 @@
 # .npmignore — Files excluded from npm publish.
+# Note: package.json `files` is an allowlist that takes precedence; this list
+# is a belt-and-braces fallback. Keep both in sync to avoid maintainer confusion.
 tests/
 .orchestray/
 .git*
@@ -8,5 +10,5 @@ coverage/
 .nyc_output/
 *.log
 .DS_Store
-CHANGELOG.md
 docs/
+__pycache__/

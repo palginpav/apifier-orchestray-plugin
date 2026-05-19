@@ -88,10 +88,11 @@ register in `_registry.js`.
 
 ## Wave 5 — Packaging & Marketplace (DONE)
 
-**Commits:** W18
+**Commits:** `79b496b` feat (publish prep + Petstore smoke), plus W19 follow-up nit fixes.
 
-`package.json` v0.1.0 with full publish metadata, `CHANGELOG.md`, README updated,
-ROADMAP updated. `npm publish` and marketplace submission pending manual step.
+`package.json` v0.1.0 with full publish metadata, `CHANGELOG.md`, README + ROADMAP
+refreshed, real-world Petstore integration smoke test. `npm publish` and
+orchestray-marketplace submission remain manual steps for the maintainer.
 
 ---
 
