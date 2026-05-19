@@ -154,7 +154,25 @@ test('handleScrape end-to-end: markdown-readme-style.md produces mapping with x-
   const mapping = JSON.parse(fs.readFileSync(result.output_path, 'utf8'));
   assert.equal(mapping.extensions['x-source-format'], 'markdown', 'x-source-format must be markdown');
   assert.equal(mapping.source.type, 'markdown', 'source.type must be markdown');
+  assert.equal(mapping.source.parser.name,    'apifier-markdown-parser', 'source.parser.name must be apifier-markdown-parser');
+  assert.equal(mapping.source.parser.version, '0.0.1',                   'source.parser.version must be 0.0.1');
   assert.ok(mapping.endpoints.length >= 2,       `expected >= 2 mapped endpoints`);
+
+  // Multi-response coverage (W24-I-11 regression guard): GET /users/{id} in
+  // the readme-style fixture has both a 200 and a 404 example. Both must
+  // round-trip to distinct entries in endpoint.responses, NOT collapse to
+  // whichever response heading was last seen during the forward scan.
+  const getById = mapping.endpoints.find(e =>
+    e.method === 'GET' && e.path.includes('/users/{id}'));
+  if (getById) {
+    assert.ok(getById.responses['200'], 'GET /users/{id} must have a 200 response entry');
+    assert.ok(getById.responses['404'], 'GET /users/{id} must have a 404 response entry');
+    const ex200 = getById.extensions && getById.extensions['x-response-example-200'];
+    const ex404 = getById.extensions && getById.extensions['x-response-example-404'];
+    assert.ok(ex200, 'GET /users/{id} must have x-response-example-200');
+    assert.ok(ex404, 'GET /users/{id} must have x-response-example-404');
+    assert.notEqual(ex200, ex404, '200 and 404 example bodies must differ');
+  }
 
   // Cleanup output file.
   try { fs.unlinkSync(result.output_path); } catch (_) {}
