@@ -266,15 +266,16 @@ test('registry lists go-net-http as supported with wave 4D', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Registry: curl-shell still unsupported
+// Registry: curl-shell now supported (wave 4E)
 // ---------------------------------------------------------------------------
 
-test('registry still marks curl-shell as unsupported', () => {
+test('registry marks curl-shell as supported at wave 4E', () => {
   const registry = require(path.join(__dirname, '../../lib/codegen/_registry'));
   const list = registry.list();
   const entry = list.find(t => t.id === 'curl-shell');
-  assert.ok(entry, 'curl-shell must remain in registry');
-  assert.equal(entry.supported, false, 'curl-shell must remain unsupported');
+  assert.ok(entry, 'curl-shell must be in registry');
+  assert.equal(entry.supported, true, 'curl-shell must be supported (wave 4E)');
+  assert.equal(entry.wave, '4E', 'curl-shell must be wave 4E');
 });
 
 // ---------------------------------------------------------------------------

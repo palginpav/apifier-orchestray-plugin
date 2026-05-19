@@ -131,8 +131,7 @@ test('openapi-3.1 round-trip: scrape petstore.yaml → generate openapi-3.1 → 
   }
 });
 
-test('openapi-3.1 round-trip: curl-shell target still throws CodegenNotSupportedError', async () => {
-  const { CodegenNotSupportedError } = require('../../lib/errors');
+test('openapi-3.1 round-trip: curl-shell target is now supported (wave 4E)', async () => {
   const { handleGenerate: hg } = require('../../lib/handlers/generate');
 
   // Need a valid mapping to get past the mapping-read check
@@ -143,19 +142,21 @@ test('openapi-3.1 round-trip: curl-shell target still throws CodegenNotSupported
     overwrite:    true,
   });
 
-  await assert.rejects(
-    () => hg({
-      mapping_path: scrapeResult.output_path,
-      target:       'curl-shell',
-      out_path:     path.join(os.tmpdir(), `apifier-curl-test-${process.pid}.sh`),
-      overwrite:    true,
-    }),
-    (err) => {
-      assert.ok(
-        err instanceof CodegenNotSupportedError,
-        `expected CodegenNotSupportedError, got ${err.constructor.name}`
-      );
-      return true;
-    }
-  );
+  const outSh = path.join(os.tmpdir(), `apifier-curl-test-${process.pid}.sh`);
+  const result = await hg({
+    mapping_path: scrapeResult.output_path,
+    target:       'curl-shell',
+    out_path:     outSh,
+    overwrite:    true,
+  });
+
+  assert.ok(result.output_path.endsWith('.sh'), 'output path must end with .sh');
+  assert.ok(result.bytes_written > 0, 'must have written some bytes');
+
+  // Verify the generated file passes bash -n
+  const { execSync } = require('node:child_process');
+  execSync(`bash -n ${JSON.stringify(outSh)}`, { stdio: 'pipe' });
+
+  // Clean up
+  try { fs.unlinkSync(outSh); } catch (_) { /* ignore */ }
 });
