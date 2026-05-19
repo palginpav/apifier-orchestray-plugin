@@ -1,0 +1,78 @@
+{
+  "info": {
+    "name": "Nested API",
+    "description": "Original markup in the Postman Collection v2.1 style. No content lifted from any specific service.",
+    "_postman_id": "bbbb1111-cccc-2222-dddd-333344445555",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://api.example.com/users",
+              "protocol": "https",
+              "host": ["api", "example", "com"],
+              "path": ["users"],
+              "query": []
+            },
+            "description": "Retrieve all users."
+          },
+          "response": []
+        },
+        {
+          "name": "Get User",
+          "event": [
+            { "listen": "test", "script": { "exec": ["pm.test('status', () => {});"] } }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Custom-Header", "value": "test-value" }
+            ],
+            "url": {
+              "raw": "https://api.example.com/users/{{userId}}",
+              "protocol": "https",
+              "host": ["api", "example", "com"],
+              "path": ["users", "{{userId}}"],
+              "variable": [
+                { "key": "userId", "value": "42" }
+              ]
+            },
+            "description": "Retrieve a user by ID."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "code": 200,
+              "status": "OK",
+              "body": "{\"id\": 42, \"name\": \"Alice\"}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.example.com/health",
+          "protocol": "https",
+          "host": ["api", "example", "com"],
+          "path": ["health"]
+        },
+        "description": "Check API health."
+      },
+      "response": []
+    }
+  ],
+  "variable": []
+}

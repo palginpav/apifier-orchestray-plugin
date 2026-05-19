@@ -1,0 +1,115 @@
+{
+  "info": {
+    "name": "Widget API",
+    "description": "Original markup in the Postman Collection v2.1 style. No content lifted from any specific service.",
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Widget",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "https://api.example.com/widgets/{{widgetId}}?fields=name",
+          "protocol": "https",
+          "host": ["api", "example", "com"],
+          "path": ["widgets", "{{widgetId}}"],
+          "query": [
+            { "key": "fields", "value": "name" },
+            { "key": "debug", "value": "true", "disabled": true }
+          ],
+          "variable": [
+            { "key": "widgetId", "value": "1", "description": "The widget identifier" }
+          ]
+        },
+        "description": "Retrieve a single widget by its identifier."
+      },
+      "response": [
+        {
+          "name": "200 OK",
+          "code": 200,
+          "status": "OK",
+          "body": "{\"id\": \"wgt_1\", \"name\": \"Red Widget\", \"color\": \"red\"}",
+          "_postman_previewlanguage": "json",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ]
+        },
+        {
+          "name": "404 Not Found",
+          "code": 404,
+          "status": "Not Found",
+          "body": "{\"error\": \"Widget not found\"}",
+          "_postman_previewlanguage": "json"
+        }
+      ]
+    },
+    {
+      "name": "Create Widget",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Request-Id", "value": "{{requestId}}" }
+        ],
+        "url": {
+          "raw": "https://api.example.com/widgets",
+          "protocol": "https",
+          "host": ["api", "example", "com"],
+          "path": ["widgets"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\": \"Blue Widget\", \"color\": \"blue\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Create a new widget."
+      },
+      "response": [
+        {
+          "name": "201 Created",
+          "code": 201,
+          "status": "Created",
+          "body": "{\"id\": \"wgt_2\", \"name\": \"Blue Widget\", \"color\": \"blue\"}",
+          "_postman_previewlanguage": "json"
+        }
+      ]
+    },
+    {
+      "name": "Delete Widget",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "https://api.example.com/widgets/{{widgetId}}",
+          "protocol": "https",
+          "host": ["api", "example", "com"],
+          "path": ["widgets", "{{widgetId}}"],
+          "variable": [
+            { "key": "widgetId", "value": "1" }
+          ]
+        },
+        "description": "Delete a widget by its identifier."
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{TOKEN}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "TOKEN", "value": "", "description": "Bearer token for authentication" },
+    { "key": "requestId", "value": "req-001" }
+  ]
+}
