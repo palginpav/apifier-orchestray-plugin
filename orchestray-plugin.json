@@ -127,7 +127,7 @@
           "block_on":       { "type": "string", "enum": ["breaking", "minor", "patch", "none"], "default": "breaking", "description": "Severity threshold at which should_block becomes true. 'breaking' blocks only major verdicts; 'minor' also blocks minor verdicts; 'patch' blocks any change; 'none' never blocks (report-only)." },
           "obey_robots_txt": { "type": "boolean", "default": true },
           "timeout_ms":     { "type": "integer", "minimum": 1000, "maximum": 55000, "default": 30000 },
-          "source_type":    { "type": "string", "enum": ["auto","openapi","swagger","postman","asyncapi","graphql-sdl","grpc-proto","html","markdown","sitemap"], "default": "auto" }
+          "source_type":    { "type": "string", "enum": ["auto","openapi","swagger","postman","asyncapi","graphql-sdl","graphql-introspection","grpc-proto","html","markdown","sitemap"], "default": "auto" }
         },
         "additionalProperties": false
       }

@@ -43,7 +43,7 @@ test('initialize returns protocolVersion and serverInfo', () => {
 // tools/list
 // ---------------------------------------------------------------------------
 
-test('tools/list returns exactly 6 tools matching manifest', () => {
+test('tools/list returns exactly TOOL_DECLS.length tools matching manifest', () => {
   const frame = { jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} };
   const resp = dispatch(frame);
   assert.equal(resp.jsonrpc, '2.0');
@@ -51,12 +51,15 @@ test('tools/list returns exactly 6 tools matching manifest', () => {
   assert.ok(Array.isArray(resp.result.tools), 'result.tools must be an array');
   assert.equal(resp.result.tools.length, TOOL_DECLS.length, 'must declare exactly the manifest tool count');
   const names = resp.result.tools.map(t => t.name);
+  // Explicit per-name asserts: catches a regression that drops a specific tool
+  // (TOOL_DECLS.length alone would still pass if one tool replaces another).
   assert.ok(names.includes('apifier-scrape'),    'must include apifier-scrape');
   assert.ok(names.includes('apifier-list'),      'must include apifier-list');
   assert.ok(names.includes('apifier-generate'),  'must include apifier-generate');
   assert.ok(names.includes('apifier-validate'),  'must include apifier-validate');
   assert.ok(names.includes('apifier-doctor'),    'must include apifier-doctor');
   assert.ok(names.includes('apifier-diff'),      'must include apifier-diff');
+  assert.ok(names.includes('apifier-watch'),     'must include apifier-watch');
 });
 
 test('tools/list result matches TOOL_DECLS constant exactly', () => {
