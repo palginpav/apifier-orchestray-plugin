@@ -102,7 +102,9 @@ class WidgetsApiClient:
         if _resp.status_code == 404:
             raise ApifierNotFoundError(_resp.text, 404)
         if 200 <= _resp.status_code < 300:
-            return _resp.json()
+            if "json" in _resp.headers.get("content-type", "").lower():
+                return _resp.json()
+            return _resp.text
         if 400 <= _resp.status_code < 500:
             raise ApifierClientError(_resp.text, _resp.status_code)
         raise ApifierServerError(_resp.text, _resp.status_code)
@@ -120,7 +122,9 @@ class WidgetsApiClient:
         if _resp.status_code == 400:
             raise ApifierBadRequestError(_resp.text, 400)
         if 200 <= _resp.status_code < 300:
-            return _resp.json()
+            if "json" in _resp.headers.get("content-type", "").lower():
+                return _resp.json()
+            return _resp.text
         if 400 <= _resp.status_code < 500:
             raise ApifierClientError(_resp.text, _resp.status_code)
         raise ApifierServerError(_resp.text, _resp.status_code)
