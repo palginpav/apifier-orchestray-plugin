@@ -65,10 +65,14 @@ test('handleDiff: real fixtures return correct ChangeReport shape', async () => 
   assert.ok(Array.isArray(result.patch));
   assert.ok(typeof result.summary === 'object');
 
-  // The evolved fixture has breaking changes → verdict must be major.
+  // The evolved fixture has breaking changes → verdict must be major. Use the
+  // strict W33-brief thresholds (>= 4 / >= 4 / >= 2) so a regression that
+  // silently drops a category is caught — not the loose > 0 check that would
+  // let a 1-breaking-change regression slide through.
   assert.equal(result.verdict, 'major', 'evolved fixture must produce a major verdict');
-  assert.ok(result.counts.breaking > 0, 'must have breaking changes');
-  assert.ok(result.counts.non_breaking > 0, 'must have non_breaking changes');
+  assert.ok(result.counts.breaking     >= 4, `must have >= 4 breaking changes (got ${result.counts.breaking})`);
+  assert.ok(result.counts.non_breaking >= 4, `must have >= 4 non_breaking changes (got ${result.counts.non_breaking})`);
+  assert.ok(result.counts.patch        >= 2, `must have >= 2 patch changes (got ${result.counts.patch})`);
 });
 
 // ---------------------------------------------------------------------------

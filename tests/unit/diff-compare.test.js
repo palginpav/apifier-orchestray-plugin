@@ -517,3 +517,63 @@ test('throws TypeError when a is null', () => {
 test('throws TypeError when b is not an object', () => {
   assert.throws(() => compareMapping(baseMapping(), 'string'), /compareMapping: b must be an object/);
 });
+
+// ---------------------------------------------------------------------------
+// W34 follow-up: response_example_only_changed (patch impact)
+// ---------------------------------------------------------------------------
+
+function _epWithResponse(example) {
+  return endpoint('GET', '/widget', {
+    responses: {
+      '200': {
+        description:  'OK',
+        schema:       { $ref: 'Widget' },
+        example:      example,
+      },
+    },
+  });
+}
+
+test('response_example_only_changed → patch (schema unchanged, example differs)', () => {
+  const a = baseMapping({ endpoints: [_epWithResponse({ id: 1, name: 'before' })] });
+  const b = baseMapping({ endpoints: [_epWithResponse({ id: 1, name: 'after'  })] });
+
+  const report = compareMapping(a, b);
+  const exampleChanges = [...report.breaking, ...report.non_breaking, ...report.patch]
+    .filter(c => c.kind === 'response_example_only_changed');
+
+  assert.equal(exampleChanges.length, 1, 'must emit exactly one example-only change');
+  assert.equal(exampleChanges[0].impact, 'patch', 'impact must be patch');
+  assert.ok(exampleChanges[0].path.includes('responses[200]'), 'path must scope to status 200');
+});
+
+test('response_example_only_changed NOT emitted when schema also changed (subsumed)', () => {
+  const a = baseMapping({ endpoints: [endpoint('GET', '/w', {
+    responses: { '200': { description: 'OK', schema: { primitive: 'string' }, example: 'foo' } },
+  })] });
+  const b = baseMapping({ endpoints: [endpoint('GET', '/w', {
+    responses: { '200': { description: 'OK', schema: { primitive: 'integer' }, example: 42 } },
+  })] });
+
+  const report = compareMapping(a, b);
+  const exampleChanges = [...report.breaking, ...report.non_breaking, ...report.patch]
+    .filter(c => c.kind === 'response_example_only_changed');
+  const schemaChanges  = report.breaking.filter(c => c.kind === 'response_schema_changed');
+
+  assert.equal(schemaChanges.length,  1, 'schema change must still be emitted (breaking)');
+  assert.equal(exampleChanges.length, 0, 'must NOT double-count example diff under schema change');
+});
+
+test('response_example_only_changed NOT emitted when neither response has an example', () => {
+  const a = baseMapping({ endpoints: [endpoint('GET', '/x', {
+    responses: { '200': { description: 'OK', schema: { $ref: 'X' } } },
+  })] });
+  const b = baseMapping({ endpoints: [endpoint('GET', '/x', {
+    responses: { '200': { description: 'OK', schema: { $ref: 'X' } } },
+  })] });
+
+  const report = compareMapping(a, b);
+  const exampleChanges = [...report.breaking, ...report.non_breaking, ...report.patch]
+    .filter(c => c.kind === 'response_example_only_changed');
+  assert.equal(exampleChanges.length, 0);
+});
