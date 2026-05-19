@@ -355,3 +355,56 @@ test('handleScrape auto-detects and parses Postman collection fixture', async ()
   // Clean up.
   try { fs.unlinkSync(result.output_path); } catch (_) {}
 });
+
+// ---------------------------------------------------------------------------
+// (j) Round-trip regression: Postman → mapping → OpenAPI 3.1 → re-parse
+//     Guards W32-P-I03 — proves the cross-format conversion path stays intact.
+// ---------------------------------------------------------------------------
+
+test('Postman → OpenAPI 3.1 round-trip preserves endpoint set', async () => {
+  const os = require('node:os');
+  const { handleScrape }   = require(path.join(__dirname, '../../lib/handlers/scrape'));
+  const { handleGenerate } = require(path.join(__dirname, '../../lib/handlers/generate'));
+  const { parseOpenAPI }   = require(path.join(__dirname, '../../lib/parsers/openapi'));
+
+  // 1. Scrape Postman collection.
+  const scrape = await handleScrape({
+    source:       SIMPLE_FIXTURE,
+    service_name: 'postman-roundtrip',
+    overwrite:    true,
+  });
+  const origPairs = new Set(JSON.parse(fs.readFileSync(scrape.output_path, 'utf8'))
+    .endpoints.map(e => `${e.method} ${e.path}`));
+
+  // 2. Generate OpenAPI 3.1 YAML.
+  const outYaml = path.join(os.tmpdir(), `apifier-pm-rt-${Date.now()}.yaml`);
+  const gen = await handleGenerate({
+    mapping_path: scrape.output_path,
+    target:       'openapi-3.1',
+    out_path:     outYaml,
+    overwrite:    true,
+  });
+  assert.ok(gen.bytes_written > 0, 'generated OAS file must be non-empty');
+
+  // 3. Re-parse the emitted YAML through the OpenAPI parser.
+  const yaml = fs.readFileSync(outYaml, 'utf8');
+  const reparsed = await parseOpenAPI({
+    body:         yaml,
+    content_type: 'application/yaml',
+    source_url:   null,
+  });
+
+  const reparsedPairs = new Set(reparsed.ir.endpoints.map(e => `${e.method} ${e.path}`));
+
+  // 4. Round-trip property: endpoint sets must agree.
+  assert.ok(reparsed.ir.endpoints.length > 0, 're-parsed endpoint count > 0');
+  assert.equal(reparsedPairs.size, origPairs.size,
+    `endpoint count must match (orig=${origPairs.size}, reparsed=${reparsedPairs.size})`);
+  for (const pair of origPairs) {
+    assert.ok(reparsedPairs.has(pair), `re-parse must contain ${pair}`);
+  }
+
+  // Cleanup.
+  try { fs.unlinkSync(scrape.output_path); } catch (_) {}
+  try { fs.unlinkSync(outYaml); } catch (_) {}
+});
