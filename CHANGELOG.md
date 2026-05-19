@@ -2,6 +2,61 @@
 All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog (https://keepachangelog.com/en/1.1.0/).
 
+## [0.5.0] — 2026-05-19
+
+**Codegen complete: ALL 7 declared targets are now LIVE.**
+
+### Added
+- (Wave 4F) **`ts-axios` codegen** — TypeScript axios client. Mirrors the
+  `ts-fetch` shape but uses `axios.create({baseURL}).request(...)`. Error
+  mapping via `AxiosError.response?.status` → ApifierXxxError. Per-request
+  header injection (no shared `defaults` mutation) for safer concurrent
+  use. `node --check` validated.
+- (Wave 4F) **`python-httpx` codegen** — Python 3.8+ httpx sync client.
+  Mirrors `python-requests` shape but uses `httpx.Client`. Cleaner
+  basic-auth (httpx accepts `auth=(user, password)` tuples — no manual
+  base64). `python3 -m py_compile` validated.
+- `tests/integration/openapi-3.1-roundtrip.test.js` gains a completeness
+  test asserting **every** registry target is supported — catches a
+  future regression where a new target is declared without a wired
+  handler.
+
+### Changed
+- `apifier-generate` manifest description rewritten: now enumerates all
+  7 live targets (`ts-fetch`, `ts-axios`, `python-requests`,
+  `python-httpx`, `openapi-3.1`, `go-net-http`, `curl-shell`). No more
+  "Planned" section in the description.
+- Plugin version 0.4.0 → 0.5.0 (third feature-add minor since 0.2.0).
+  Manifest + `package.json` in lock-step.
+
+### Fixed (W42 follow-up, before publish)
+- (CRITICAL) `python-httpx`: `self._base_url` was referenced in per-method
+  URL f-strings but never assigned in `__init__` — every generated client
+  method would raise `AttributeError` at runtime. `py_compile` is
+  syntax-only, so it didn't catch this; the golden-file test passed
+  because the golden was bug-compatible. Fix: assign `self._base_url`
+  alongside `self._client` in the constructor.
+- (CRITICAL) `python-httpx` + `python-requests`: alphabetically-sorted
+  models caused forward-reference NameErrors (e.g. `Pet` references
+  `Tag` but `Tag` is defined later in the file; dataclass evaluates
+  annotations at class-definition time). Fix: emit `from __future__
+  import annotations` (PEP 563, Python 3.7+; we target 3.8+).
+  All dataclass annotations are now lazy strings.
+- `ts-axios` JSDoc comment for `_buildHeaderLines` rewritten to describe
+  the actual per-request injection strategy (the prior comment claimed
+  `defaults.headers` mutation, which the implementation didn't do).
+
+### Codegen targets at v0.5.0
+| Target | Wave | Status |
+|---|---|---|
+| `ts-fetch` | 4A | LIVE |
+| `python-requests` | 4B | LIVE |
+| `openapi-3.1` | 4C | LIVE |
+| `go-net-http` | 4D | LIVE |
+| `curl-shell` | 4E | LIVE |
+| `ts-axios` | 4F | LIVE |
+| `python-httpx` | 4F | LIVE |
+
 ## [0.4.0] — 2026-05-19
 
 ### Added
@@ -199,6 +254,7 @@ The format is based on Keep a Changelog (https://keepachangelog.com/en/1.1.0/).
 ## [0.0.1] — pre-history
 - Internal scaffold only; never published. Commit: `f7f7916`.
 
+[0.5.0]: https://github.com/palginpav/apifier-orchestray-plugin/releases/tag/v0.5.0
 [0.4.0]: https://github.com/palginpav/apifier-orchestray-plugin/releases/tag/v0.4.0
 [0.3.0]: https://github.com/palginpav/apifier-orchestray-plugin/releases/tag/v0.3.0
 [0.2.0]: https://github.com/palginpav/apifier-orchestray-plugin/releases/tag/v0.2.0

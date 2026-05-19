@@ -15,16 +15,22 @@ Additional source formats — Postman collections, AsyncAPI, GraphQL schemas, gR
 
 ## Status
 
-**v0.4.0 — 6 source formats × 4 codegen targets × 7 MCP tools.** The plugin's
-brief surface area is fully populated:
+**v0.5.0 — 6 source formats × 7 codegen targets × 7 MCP tools.** The full
+brief surface is delivered:
 
 - **Scrape (6 input formats)**: OpenAPI 3.0/3.1 (JSON or YAML), HTML doc sites
-  (Stripe/Slate, Docusaurus, GitBook, OpenAPI-rendered viewers like Swagger UI,
-  Generic), Markdown API docs, Postman v2.1 collections, GraphQL SDL.
-- **Generate (4 live codegen targets)**: `ts-fetch` (TypeScript fetch client),
-  `python-requests` (Python 3.8+), `openapi-3.1` (round-trip OAS YAML),
-  `go-net-http` (Go stdlib). Remaining planned: `ts-axios`, `python-httpx`,
-  `curl-shell` (see [ROADMAP.md](ROADMAP.md)).
+  (Stripe/Slate, Docusaurus, GitBook, OpenAPI-rendered viewers like Swagger
+  UI, Generic), Markdown API docs, Postman v2.1 collections, GraphQL SDL.
+- **Generate (ALL 7 codegen targets live)**:
+  | Target | Language | Notes | Wave |
+  |---|---|---|---|
+  | `ts-fetch` | TypeScript | Native `fetch` | 4A |
+  | `ts-axios` | TypeScript | `axios` client | 4F |
+  | `python-requests` | Python 3.8+ | `requests` sync client | 4B |
+  | `python-httpx` | Python 3.8+ | `httpx` sync client | 4F |
+  | `go-net-http` | Go | Stdlib `net/http` | 4D |
+  | `curl-shell` | Bash 4+ | Ops scripts (`set -euo pipefail`) | 4E |
+  | `openapi-3.1` | YAML | Round-trip OpenAPI 3.1 spec | 4C |
 - **CI workflow**: `apifier-diff` classifies mapping deltas across 24 SemVer
   change categories; `apifier-watch` composes scrape + diff into a single
   `should_block` decision for CI gates.

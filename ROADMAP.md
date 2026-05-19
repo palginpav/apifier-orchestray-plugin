@@ -114,13 +114,41 @@ unused-import tracking; api-key with `in:'query'` correctly appends to URL.
 
 ---
 
-## Wave 4E — Remaining codegen targets (OPEN)
+## Wave 4E — curl-shell codegen (DONE)
 
-Planned: `ts-axios` (axios variant of ts-fetch), `python-httpx` (httpx variant
-of python-requests), `curl-shell` (shell scripts for ops use; Wave 4E moves
-from 6+ to 4E per the v0.4.0 plan). Each implements
-`lib/codegen/<target>.js` exporting `generate(mapping, opts) → { text, ext }`,
-registered in `_registry.js`.
+**Commits:** `46a0241` feat, `845167d` fix nits.
+
+Bash 4+ ops script with `set -euo pipefail` strict-mode preamble. One
+`apifier__<method>__<path-slug>` function per endpoint; env-style parameter
+passing (`widget_id=abc apifier__get__widgets_id`); conditional auth helpers.
+Validated by `bash -n` AND `shellcheck -e SC2086 -e SC1091`.
+
+---
+
+## Wave 4F — ts-axios + python-httpx codegens (DONE — ALL 7 targets live)
+
+**Commits:** `4de0ed6` feat, `de6ac8f` fix critical bugs.
+
+The last two codegen targets:
+- `ts-axios`: TypeScript axios client; mirrors ts-fetch but uses
+  `axios.create().request()`. Per-request header injection (safer than
+  `defaults` mutation under concurrent use).
+- `python-httpx`: Python 3.8+ httpx sync client; cleaner basic-auth
+  (tuple-based) than the python-requests base64 dance.
+
+Both byte-deterministic; both validated (`node --check`, `python3 -m
+py_compile`). Real-import smoke confirms generated clients instantiate
+successfully and expose the expected methods.
+
+W42 caught two critical pre-publish bugs in python-httpx/python-requests:
+(1) `self._base_url` was never assigned — fixed by adding the assignment
+to the emitted constructor; (2) alphabetically-sorted models caused
+forward-reference NameErrors — fixed by emitting `from __future__ import
+annotations` (PEP 563).
+
+Plugin v0.4.0 → v0.5.0. Manifest description rewritten to enumerate all
+7 live targets. The integration test's unsupported-guard for-loop is
+replaced with a completeness assertion (`unsupported.length === 0`).
 
 ---
 
