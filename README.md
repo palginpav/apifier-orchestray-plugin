@@ -3,18 +3,23 @@
 Scrape a service's API documentation into a reusable orchestray-compatible mapping
 file, then generate ready-to-import API client modules in multiple languages. Point
 APIfier at an **OpenAPI 3.0 or 3.1 spec** (JSON or YAML; URL, local file, or inline
-text) and it normalises it into a single portable `<service>.apifier.json` file. From
-that file you can emit a typed TypeScript `fetch` client or a Python `requests`
-client without scraping the service again.
+text), an **HTML doc site** (Stripe/Slate three-column, Docusaurus, GitBook, or
+generic heading-based layouts), or a **Markdown API doc** (`docs/api.md`, README
+sections, wiki exports) and it normalises it into a single portable
+`<service>.apifier.json` file. From that file you can emit a typed TypeScript `fetch`
+client or a Python `requests` client without scraping the service again.
 
 Additional source formats — Postman collections, AsyncAPI, GraphQL schemas, gRPC
-`.proto` files, HTML/Markdown docs pages — are planned for future waves. See
+`.proto` files — are planned for future waves. See
 [ROADMAP.md](ROADMAP.md) for the full plan.
 
 ## Status
 
-**v0.1.0 — first public release; ts-fetch + python-requests codegen targets live.**
+**v0.2.0 — adds HTML doc-site scraping (5 archetypes) and Markdown ingestion alongside
+the existing OpenAPI JSON/YAML support. ts-fetch + python-requests codegen targets
+remain live.**
 All 5 MCP tools are real: `apifier-scrape` ingests OpenAPI 3.0/3.1 (JSON or YAML),
+HTML doc sites (Stripe/Slate, Docusaurus, GitBook, generic), and Markdown API docs,
 `apifier-generate` emits typed TypeScript fetch clients and Python requests clients,
 `apifier-validate` / `apifier-list` / `apifier-doctor` are fully operational.
 See [ROADMAP.md](ROADMAP.md) for planned targets (ts-axios, python-httpx, openapi-3.1).

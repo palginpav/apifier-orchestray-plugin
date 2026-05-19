@@ -2,6 +2,55 @@
 All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog (https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.0] — 2026-05-19
+
+### Added
+- (Wave 2E) Markdown doc parser — ingest API docs published as Markdown
+  (`docs/api.md`, README sections, wiki exports). Pure-regex parser, no
+  external deps. Three endpoint-detection patterns (heading w/ METHOD path,
+  backticked heading, bare line in fenced block). Path/query params from
+  Markdown tables. Body + response examples from JSON code blocks. Auth
+  detection from top-level Authentication / API Keys sections.
+  `mapping.extensions["x-source-format"] = "markdown"` for drift detection.
+- (Wave 2D) HTML doc-site parser — `cheerio` + 5 strategy modules covering:
+  - OpenAPI-rendered SPA viewers (Swagger UI / Redoc / Scalar / Stoplight /
+    RapiDoc) with same-origin `redirect_to_spec` auto-follow.
+  - Stripe/Slate three-column layouts.
+  - Docusaurus mdx-rendered.
+  - GitBook conventions.
+  - Generic last-resort heading heuristic.
+  `mapping.extensions["x-html-archetype"]` records the detected strategy
+  for drift detection on re-scrape.
+  Commits: `ce563cb` (architect design), `439dfc1` (impl), `da7c66d` (nits).
+- Real-world integration tests (`tests/integration/real-world-formats.test.js`)
+  round-trip three hand-trimmed real-world fixtures (Petstore YAML, a
+  Stripe-style HTML doc page, a GitHub repo Markdown API doc) through
+  scrape → validate → ts-fetch codegen → python-requests codegen.
+  Wave 2E commits: `dfda308` (impl), `090a01c` (nits).
+
+### Security
+- Same-origin guard for `redirect_to_spec` in HTML scrape handler. Cross-
+  origin Swagger-UI/Redoc page pointing to an external spec URL now throws
+  `HTMLParseError(-32008)` with an actionable hint, rather than crashing
+  on null IR.
+- New error codes: `HTMLParseError(-32008)`,
+  `HTMLArchetypeUnsupportedError(-32009)`, `MarkdownParseError(-32010)` —
+  dispatcher remaps all to `-32603` with `data.domain_code` per the Wave
+  2A hardening contract.
+
+### Changed
+- `lib/handlers/scrape.js` `_sniffSourceType` now returns
+  `html` | `markdown` | `openapi` (was `html` | `openapi`).
+- Runtime dep added: `cheerio ^1.2.0` (MIT). Dep set is now
+  `{zod, js-yaml, cheerio}`.
+
+### Fixed
+- Markdown multi-response attribution: endpoints with multiple response
+  headings (e.g. `### Response` + `### Example response 404`) now produce
+  distinct `responses['200']` and `responses['404']` entries with the
+  correct bodies in `x-response-example-{status}`. Previously, all blocks
+  collapsed to the last response heading seen in the section.
+
 ## [0.1.0] — 2026-05-19
 
 ### Added

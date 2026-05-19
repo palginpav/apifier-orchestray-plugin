@@ -52,11 +52,25 @@ robots.txt enforcement (`lib/http/robots.js`) + sitemap.xml crawler
 
 ---
 
-## Wave 2D — HTML + Markdown parsers (OPEN)
+## Wave 2D — HTML doc-site parser (DONE)
 
-`lib/parsers/html.js` (cheerio selector heuristics) and `lib/parsers/markdown.js`
-(remark + regex curl-example extraction). Blocked on confirming Playwright as
-optional dependency (open question 1).
+**Commits:** `ce563cb` (architect design), `439dfc1` (impl), `da7c66d` (nits)
+
+`lib/parsers/html.js` with `cheerio` + 5 strategy modules covering OpenAPI-rendered
+SPA viewers (Swagger UI / Redoc / Scalar / Stoplight / RapiDoc) with same-origin
+`redirect_to_spec` auto-follow, Stripe/Slate three-column layouts, Docusaurus,
+GitBook, and a generic last-resort heading heuristic.
+`mapping.extensions["x-html-archetype"]` records the detected strategy.
+
+## Wave 2E — Markdown doc parser (DONE)
+
+**Commits:** `dfda308` (impl), `090a01c` (nits)
+
+`lib/parsers/markdown.js` — pure-regex Markdown parser, no external deps. Three
+endpoint-detection patterns (heading w/ METHOD path, backticked heading, bare line
+in fenced block). Path/query params from Markdown tables. Body + response examples
+from JSON code blocks. Auth detection from top-level Authentication / API Keys
+sections. `mapping.extensions["x-source-format"] = "markdown"` for drift detection.
 
 ---
 
@@ -93,6 +107,15 @@ register in `_registry.js`.
 `package.json` v0.1.0 with full publish metadata, `CHANGELOG.md`, README + ROADMAP
 refreshed, real-world Petstore integration smoke test. `npm publish` and
 orchestray-marketplace submission remain manual steps for the maintainer.
+
+## Wave 5.1 — v0.2.0 Consolidation + Real-world Fixture Tests (DONE)
+
+v0.2.0 release: bumped `package.json` + `orchestray-plugin.json` to `0.2.0`.
+CHANGELOG updated with Waves 2D + 2E delta. README + ROADMAP refreshed to reflect
+HTML + Markdown support. Three real-world-style fixtures (Petstore YAML,
+Stripe-style HTML, GitHub-style Markdown) and a new integration test
+(`tests/integration/real-world-formats.test.js`) round-trip each through
+scrape → validate → ts-fetch + python-requests codegen.
 
 ---
 

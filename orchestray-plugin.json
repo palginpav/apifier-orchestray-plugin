@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "apifier",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Scrape and ingest external API documentation (OpenAPI, Postman, AsyncAPI, GraphQL, gRPC, HTML, Markdown) into a portable apifier-mapping.json file; generate language-specific client modules from a mapping; validate and self-check.",
   "entrypoint": "server.js",
   "transport": "stdio",
