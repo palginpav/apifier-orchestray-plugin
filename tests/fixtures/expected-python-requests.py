@@ -10,6 +10,7 @@ Quick start:
 """
 
 # Requires: pip install requests
+from __future__ import annotations
 import urllib.parse
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union

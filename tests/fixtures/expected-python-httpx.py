@@ -10,6 +10,7 @@ Quick start:
 """
 
 # Requires: pip install httpx
+from __future__ import annotations
 import urllib.parse
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
@@ -85,6 +86,7 @@ class WidgetsApiClient:
         if _base_url.endswith('/'):
             _base_url = _base_url[:-1]
         self._client: httpx.Client = httpx.Client(base_url=_base_url, timeout=30.0)
+        self._base_url: str = _base_url
         self._bearer_token: Optional[str] = None
 
     def set_bearer_token(self, token: str) -> None:
