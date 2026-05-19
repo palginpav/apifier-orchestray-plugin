@@ -5,76 +5,34 @@
 // Checks node version, orchestray install, and mappings directory.
 // Exit 0 on all-green; exit 1 if any check fails or warns.
 
-const os = require('os');
-const fs = require('fs');
-const path = require('path');
-
-const ORCHESTRAY_INSTALL_DIR = path.join(os.homedir(), '.claude', 'orchestray');
-const MAPPINGS_DIR = path.join(os.homedir(), '.orchestray', 'apifier', 'mappings');
+const {
+  checkNodeVersion,
+  checkOrchestrayInstall,
+  checkMappingsDir,
+} = require('../lib/handlers/doctor');
 
 const results = [];
 let overallOk = true;
 
 /**
- * Record a check result and print it.
- * @param {string} check - Check name
- * @param {boolean} ok - Whether the check passed
- * @param {string} detail - Human-readable detail
+ * Record a check result and print it (CLI format).
+ * @param {{ name: string, status: string, detail: string }} check
  */
-function record(check, ok, detail) {
-  results.push({ check, ok, detail });
+function record(check) {
+  const ok = check.status !== 'fail';
+  results.push({ check: check.name, ok, detail: check.detail });
   const icon = ok ? '[OK]' : '[FAIL]';
-  process.stdout.write(`${icon}  ${check}: ${detail}\n`);
+  process.stdout.write(`${icon}  ${check.name}: ${check.detail}\n`);
   if (!ok) overallOk = false;
 }
 
 // ---------------------------------------------------------------------------
-// Check 1: Node version >= 20
+// Run the 3 CLI checks (mappings_validity is MCP-only in v0.0.1)
 // ---------------------------------------------------------------------------
 
-const nodeVerMatch = process.version.match(/^v(\d+)/);
-const nodeMajor = nodeVerMatch ? parseInt(nodeVerMatch[1], 10) : 0;
-record(
-  'node_version',
-  nodeMajor >= 20,
-  `${process.version} (require >=20)`
-);
-
-// ---------------------------------------------------------------------------
-// Check 2: orchestray install present at ~/.claude/orchestray/
-// ---------------------------------------------------------------------------
-
-const orchestrayExists = fs.existsSync(ORCHESTRAY_INSTALL_DIR);
-record(
-  'orchestray_install',
-  orchestrayExists,
-  orchestrayExists
-    ? `found at ${ORCHESTRAY_INSTALL_DIR}`
-    : `not found at ${ORCHESTRAY_INSTALL_DIR} — install orchestray first`
-);
-
-// ---------------------------------------------------------------------------
-// Check 3: mappings directory is creatable / writable
-// ---------------------------------------------------------------------------
-
-let mappingsDirOk = false;
-let mappingsDirDetail = '';
-try {
-  if (!fs.existsSync(MAPPINGS_DIR)) {
-    fs.mkdirSync(MAPPINGS_DIR, { recursive: true });
-    mappingsDirDetail = `created ${MAPPINGS_DIR}`;
-  } else {
-    // Probe writeability with a temp file.
-    const probe = path.join(MAPPINGS_DIR, '.apifier-write-probe');
-    fs.writeFileSync(probe, '', { mode: 0o600 });
-    fs.unlinkSync(probe);
-    mappingsDirDetail = `writable at ${MAPPINGS_DIR}`;
-  }
-  mappingsDirOk = true;
-} catch (e) {
-  mappingsDirDetail = `not writable: ${e.message}`;
-}
-record('mappings_dir', mappingsDirOk, mappingsDirDetail);
+record(checkNodeVersion());
+record(checkOrchestrayInstall());
+record(checkMappingsDir());
 
 // ---------------------------------------------------------------------------
 // Summary

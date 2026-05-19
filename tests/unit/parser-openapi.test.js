@@ -8,7 +8,6 @@ const path      = require('node:path');
 const fs        = require('node:fs');
 
 const { parseOpenAPI } = require(path.join(__dirname, '../../lib/parsers/openapi'));
-const { UnsupportedFormatError } = require(path.join(__dirname, '../../lib/errors'));
 
 const FIXTURE_30 = path.join(__dirname, '../fixtures/sample-openapi-3.0.json');
 
@@ -133,13 +132,13 @@ test('parseOpenAPI Swagger 2.0 produces warning but parses endpoints', async () 
 });
 
 // ---------------------------------------------------------------------------
-// YAML → UnsupportedFormatError
+// YAML now supported (Wave 2B) — no longer throws UnsupportedFormatError
 // ---------------------------------------------------------------------------
 
-test('parseOpenAPI YAML body throws UnsupportedFormatError', async () => {
+test('parseOpenAPI YAML body is now supported (Wave 2B)', async () => {
+  // YAML with openapi: key is auto-detected even when content_type says application/json.
   const yamlBody = 'openapi: "3.0.3"\ninfo:\n  title: Test\n  version: "1"\npaths: {}\n';
-  await assert.rejects(
-    () => parseOpenAPI({ body: yamlBody, content_type: 'application/json', source_url: null }),
-    err => err instanceof UnsupportedFormatError
-  );
+  const { ir, warnings } = await parseOpenAPI({ body: yamlBody, content_type: 'application/json', source_url: null });
+  assert.ok(Array.isArray(ir.endpoints), 'endpoints must be array');
+  assert.equal(ir.endpoints.length, 0, 'no paths → empty endpoints');
 });

@@ -121,32 +121,52 @@ test('tools/call with missing name returns -32602', () => {
 });
 
 // ---------------------------------------------------------------------------
-// tools/call — stub tools (unimplemented in Wave 2A)
+// tools/call — stub tools (Wave 2B: only apifier-generate stays stub)
 // ---------------------------------------------------------------------------
 
-const STUB_TOOLS = [
-  'apifier-list',
-  'apifier-generate',
-  'apifier-doctor',
-];
+// apifier-generate stays a stub (codegen lands in Wave 4).
+test('tools/call apifier-generate returns stub content', () => {
+  const frame = {
+    jsonrpc: '2.0',
+    id: 10,
+    method: 'tools/call',
+    params: { name: 'apifier-generate', arguments: {} },
+  };
+  const resp = dispatch(frame);
+  assert.ok(!resp.error, 'apifier-generate must not return error in stub mode');
+  assert.ok(resp.result, 'apifier-generate must return result');
+  assert.ok(Array.isArray(resp.result.content), 'result.content must be array');
+  assert.equal(resp.result.content.length, 1, 'content must have exactly 1 item');
+  assert.equal(resp.result.content[0].type, 'text');
+  assert.equal(resp.result.content[0].text, STUB_TEXT);
+});
 
-for (const toolName of STUB_TOOLS) {
-  test(`tools/call ${toolName} returns stub content`, () => {
-    const frame = {
-      jsonrpc: '2.0',
-      id: 10,
-      method: 'tools/call',
-      params: { name: toolName, arguments: {} },
-    };
-    const resp = dispatch(frame);
-    assert.ok(!resp.error, `${toolName} must not return error in stub mode`);
-    assert.ok(resp.result, `${toolName} must return result`);
-    assert.ok(Array.isArray(resp.result.content), 'result.content must be array');
-    assert.equal(resp.result.content.length, 1, 'content must have exactly 1 item');
-    assert.equal(resp.result.content[0].type, 'text');
-    assert.equal(resp.result.content[0].text, STUB_TEXT);
-  });
-}
+// apifier-list and apifier-doctor are now real handlers (Wave 2B).
+test('tools/call apifier-list returns a Promise (real handler)', async () => {
+  const frame = {
+    jsonrpc: '2.0',
+    id: 11,
+    method: 'tools/call',
+    params: { name: 'apifier-list', arguments: {} },
+  };
+  const respOrPromise = dispatch(frame);
+  assert.ok(respOrPromise instanceof Promise, 'apifier-list must return a Promise');
+  const resp = await respOrPromise;
+  assert.ok(resp.error || resp.result, 'must produce either error or result frame');
+});
+
+test('tools/call apifier-doctor returns a Promise (real handler)', async () => {
+  const frame = {
+    jsonrpc: '2.0',
+    id: 12,
+    method: 'tools/call',
+    params: { name: 'apifier-doctor', arguments: {} },
+  };
+  const respOrPromise = dispatch(frame);
+  assert.ok(respOrPromise instanceof Promise, 'apifier-doctor must return a Promise');
+  const resp = await respOrPromise;
+  assert.ok(resp.result, 'apifier-doctor must return result frame');
+});
 
 // ---------------------------------------------------------------------------
 // tools/call — real tools (Wave 2A wired)
