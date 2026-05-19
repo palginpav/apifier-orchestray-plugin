@@ -329,3 +329,42 @@ test('parseGraphQLSDL returns correct parser name and version', async () => {
   assert.equal(result.parser.name,    'apifier-graphql-sdl-parser');
   assert.equal(result.parser.version, '0.0.1');
 });
+
+// ---------------------------------------------------------------------------
+// W36 follow-up regression: union members must NOT be empty
+// (GQL-001: the implements-skip loop was consuming the `= A | B | C` body
+//  before the union-specific parser could read it, so SearchResult always
+//  produced fields: []. The one-character fix STOPs the skip loop at '=';
+//  this test pins that down so the regression cannot return silently.)
+// ---------------------------------------------------------------------------
+
+test('GQL-001 regression: union declarations capture all member types', async () => {
+  const body = `
+    type Widget   { id: ID! name: String! }
+    type Category { id: ID! label: String! }
+    type User     { id: ID! email: String! }
+
+    union SearchResult = Widget | Category | User
+
+    type Query {
+      search(q: String!): [SearchResult!]!
+    }
+  `;
+  const result = await parseGraphQLSDL({
+    body,
+    content_type: 'application/graphql',
+    source_url:   null,
+  });
+
+  const union = result.ir.models.find(m => m.name === 'SearchResult');
+  assert.ok(union, 'SearchResult union model must be present');
+  assert.equal(union.kind, 'union', 'kind must be "union"');
+  assert.ok(Array.isArray(union.fields) && union.fields.length >= 3,
+    `union.fields must have >= 3 members (got ${union.fields ? union.fields.length : 'undefined'})`);
+
+  const refs = union.fields.map(f => f.type && f.type.$ref).filter(Boolean);
+  for (const expected of ['Widget', 'Category', 'User']) {
+    assert.ok(refs.includes(expected),
+      `union members must include $ref to ${expected} (got refs: ${JSON.stringify(refs)})`);
+  }
+});
