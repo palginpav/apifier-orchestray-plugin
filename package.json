@@ -1,6 +1,6 @@
 {
   "name": "apifier-orchestray-plugin",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Orchestray plugin: scrape API documentation into a portable mapping file, then generate language-specific client modules.",
   "keywords": [
     "orchestray",

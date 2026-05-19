@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog (https://keepachangelog.com/en/1.1.0/).
 
+## [0.5.1] — 2026-05-19
+
+### Fixed
+- Trim `apifier-generate` tool description from 524 → 383 characters to
+  satisfy Orchestray's 500-char manifest cap. v0.5.0 was rejected at the
+  consumer-side plugin-loader scan with `invalid_manifest`
+  (`tools[2].description` too_big), preventing discovery entirely. No
+  functional change — same 7 codegen targets, just shorter copy.
+
 ## [0.5.0] — 2026-05-19
 
 **Codegen complete: ALL 7 declared targets are now LIVE.**
