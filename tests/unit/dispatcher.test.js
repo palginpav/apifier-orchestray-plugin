@@ -32,7 +32,9 @@ test('initialize returns protocolVersion and serverInfo', () => {
   assert.equal(resp.id, 1);
   assert.equal(resp.result.protocolVersion, '2025-03-26');
   assert.equal(resp.result.serverInfo.name, 'apifier');
-  assert.equal(resp.result.serverInfo.version, '0.0.1');
+  // Manifest is the source of truth for version; don't hardcode here.
+  const manifest = require(require('path').resolve(__dirname, '../../orchestray-plugin.json'));
+  assert.equal(resp.result.serverInfo.version, manifest.version);
   assert.deepEqual(resp.result.capabilities, { tools: { listChanged: false } });
   assert.ok(!resp.error, 'should not have error field');
 });
