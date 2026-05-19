@@ -1,0 +1,12 @@
+# .npmignore — Files excluded from npm publish.
+tests/
+.orchestray/
+.git*
+task.md
+.claude/
+coverage/
+.nyc_output/
+*.log
+.DS_Store
+CHANGELOG.md
+docs/

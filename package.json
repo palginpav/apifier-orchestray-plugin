@@ -1,0 +1,23 @@
+{
+  "name": "apifier-orchestray-plugin",
+  "version": "0.0.1",
+  "description": "Scrape and ingest external API documentation into portable apifier-mapping.json files; generate language-specific client modules from a mapping.",
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "orchestray-plugin.json",
+    "server.js",
+    "lib/",
+    "bin/apifier-doctor.js",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test 'tests/**/*.test.js'",
+    "doctor": "node bin/apifier-doctor.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
+}

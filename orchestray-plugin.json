@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "name": "apifier",
+  "version": "0.0.1",
+  "description": "Scrape and ingest external API documentation (OpenAPI, Postman, AsyncAPI, GraphQL, gRPC, HTML, Markdown) into a portable apifier-mapping.json file; generate language-specific client modules from a mapping; validate and self-check.",
+  "entrypoint": "server.js",
+  "transport": "stdio",
+  "runtime": "node",
+  "tools": [
+    {
+      "name": "apifier-scrape",
+      "description": "Ingest API documentation from a URL, local file, or pasted spec text and write an apifier-mapping.json file. Auto-detects source type (OpenAPI 3.x, Swagger 2.0, Postman Collection v2.1, AsyncAPI 2.x, GraphQL SDL/introspection, .proto, raw HTML/Markdown). Honors robots.txt by default. Returns the output_path and a parse-summary (endpoint count, warnings, source provenance).",
+      "inputSchema": {
+        "type": "object",
+        "required": ["source"],
+        "properties": {
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "URL (http/https), absolute file path, or inline spec text. Type is auto-detected; force with source_type."
+          },
+          "source_type": {
+            "type": "string",
+            "enum": ["auto","openapi","swagger","postman","asyncapi","graphql-sdl","graphql-introspection","grpc-proto","html","markdown","sitemap"],
+            "default": "auto"
+          },
+          "service_name": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,63}$",
+            "description": "Slug used for the output filename. Defaults to a slug derived from the spec's title or hostname."
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Absolute path. Must be inside the allowed-roots list. Defaults to ~/.orchestray/apifier/mappings/."
+          },
+          "render_js": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable headless rendering (Playwright) for JS-heavy HTML sites. Requires playwright peer-dep; off by default."
+          },
+          "obey_robots_txt": { "type": "boolean", "default": true },
+          "max_pages":   { "type": "integer", "minimum": 1, "maximum": 200, "default": 50 },
+          "timeout_ms":  { "type": "integer", "minimum": 1000, "maximum": 55000, "default": 30000 },
+          "overwrite":   { "type": "boolean", "default": false }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "apifier-list",
+      "description": "List apifier-mapping.json files under the mappings directory. Returns metadata only (no full mapping bodies), suitable for piping to selectors or UI listing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dir":       { "type": "string", "description": "Mappings directory. Defaults to ~/.orchestray/apifier/mappings/." },
+          "filter":    { "type": "string", "description": "Substring filter on service_name." },
+          "include_invalid": { "type": "boolean", "default": false, "description": "Include files that fail current-schema validation." }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "apifier-generate",
+      "description": "Emit a language-specific client module from an apifier-mapping.json file. Stub in v0.0.1 — returns a placeholder file with the chosen target indicating future codegen support.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["mapping_path", "target"],
+        "properties": {
+          "mapping_path": { "type": "string", "description": "Absolute path to an apifier-mapping.json file." },
+          "target":       { "type": "string", "enum": ["ts-fetch","ts-axios","python-requests","python-httpx","go-net-http","curl-shell","openapi-3.1"], "description": "Codegen target. v0.0.1 ships stubs only." },
+          "out_path":     { "type": "string", "description": "Absolute path to write the generated module. Must be inside an allowed root." },
+          "overwrite":    { "type": "boolean", "default": false }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "apifier-validate",
+      "description": "Re-validate an apifier-mapping.json file against the current schema. Reports schema_version, structural errors (missing required fields, invalid enum values), and migration suggestions when an older schema_version is detected.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["mapping_path"],
+        "properties": {
+          "mapping_path": { "type": "string" },
+          "strict":       { "type": "boolean", "default": false, "description": "Treat warnings as errors." }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "apifier-doctor",
+      "description": "Health-check the plugin install. Verifies node version, presence of required peer modules, mappings directory is writable, no quarantined files, and that every existing mapping passes current-schema validation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dir": { "type": "string", "description": "Mappings dir to scan; defaults to ~/.orchestray/apifier/mappings/." }
+        },
+        "additionalProperties": false
+      }
+    }
+  ]
+}

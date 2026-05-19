@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "apifier_version": "0.0.1",
+  "kind": "apifier-mapping",
+  "service": {
+    "name": "widgets-api",
+    "display_name": "Widgets API",
+    "vendor": "Example Co.",
+    "homepage": "https://widget.example.com",
+    "summary": "REST API for managing widgets.",
+    "version": "2026-04-12",
+    "documentation_url": "https://widget.example.com/docs",
+    "tags": ["public", "stable"]
+  },
+  "source": {
+    "type": "openapi",
+    "url": "https://widget.example.com/openapi.json",
+    "file_path": null,
+    "fetched_at": "2026-05-19T07:42:11.034Z",
+    "sha256": "f7c1e8b2a3d4e5f6071829aabbccddeeff00112233445566778899aabbccddeeff",
+    "bytes": 18432,
+    "robots_respected": true,
+    "parser": {
+      "name": "@scalar/openapi-parser",
+      "version": "0.28.4"
+    },
+    "parser_warnings": []
+  },
+  "auth": [
+    {
+      "id": "bearer-jwt",
+      "type": "http-bearer",
+      "description": "JWT issued by /oauth/token.",
+      "header_name": "Authorization",
+      "scheme": "Bearer",
+      "bearer_format": "JWT"
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://api.widget.example.com/v1",
+      "description": "production"
+    }
+  ],
+  "endpoints": [
+    {
+      "id": "getWidget",
+      "transport": "http",
+      "method": "GET",
+      "path": "/widgets/{id}",
+      "summary": "Get a widget by id.",
+      "description": null,
+      "tags": ["widgets"],
+      "path_params": [
+        {
+          "name": "id",
+          "type": { "primitive": "string" },
+          "required": true,
+          "description": "Widget id.",
+          "default": null,
+          "example": "wgt_abc123",
+          "enum": null,
+          "format": "uuid",
+          "deprecated": false,
+          "style": null,
+          "explode": null
+        }
+      ],
+      "query_params": [],
+      "headers": [],
+      "cookies": [],
+      "body": null,
+      "responses": {
+        "200": {
+          "description": "OK.",
+          "content_type": "application/json",
+          "schema": { "$ref": "Widget" },
+          "headers": []
+        },
+        "404": {
+          "description": "Not found.",
+          "content_type": "application/json",
+          "schema": { "$ref": "ApiError" },
+          "headers": []
+        }
+      },
+      "error_codes": ["WIDGET_NOT_FOUND"],
+      "auth": ["bearer-jwt"],
+      "idempotency": {
+        "method_intrinsic": true,
+        "header": null,
+        "description": "GET is naturally idempotent."
+      },
+      "deprecated": {
+        "is_deprecated": false,
+        "since": null,
+        "replacement_endpoint_id": null,
+        "sunset_at": null
+      },
+      "pagination": null,
+      "rate_limit": null,
+      "examples": []
+    },
+    {
+      "id": "createWidget",
+      "transport": "http",
+      "method": "POST",
+      "path": "/widgets",
+      "summary": "Create a widget.",
+      "description": "Creates a new widget owned by the authenticated user.",
+      "tags": ["widgets"],
+      "path_params": [],
+      "query_params": [],
+      "headers": [],
+      "cookies": [],
+      "body": {
+        "required": true,
+        "content_type": "application/json",
+        "schema": { "$ref": "WidgetCreate" },
+        "encoding": null
+      },
+      "responses": {
+        "201": {
+          "description": "Created.",
+          "content_type": "application/json",
+          "schema": { "$ref": "Widget" },
+          "headers": []
+        },
+        "400": {
+          "description": "Validation failure.",
+          "content_type": "application/json",
+          "schema": { "$ref": "ApiError" },
+          "headers": []
+        }
+      },
+      "error_codes": ["WIDGET_VALIDATION_FAILED"],
+      "auth": ["bearer-jwt"],
+      "idempotency": {
+        "method_intrinsic": false,
+        "header": "Idempotency-Key",
+        "description": "Pass Idempotency-Key for safe retries."
+      },
+      "deprecated": {
+        "is_deprecated": false,
+        "since": null,
+        "replacement_endpoint_id": null,
+        "sunset_at": null
+      },
+      "pagination": null,
+      "rate_limit": null,
+      "examples": ["createWidgetRedSmall"]
+    }
+  ],
+  "models": [
+    {
+      "name": "ApiError",
+      "kind": "object",
+      "description": "Standard error envelope.",
+      "fields": [
+        {
+          "name": "code",
+          "type": { "primitive": "string" },
+          "required": true,
+          "description": "Stable machine-readable error code."
+        },
+        {
+          "name": "message",
+          "type": { "primitive": "string" },
+          "required": true,
+          "description": "Human-readable message."
+        }
+      ]
+    },
+    {
+      "name": "Widget",
+      "kind": "object",
+      "description": "A widget.",
+      "fields": [
+        {
+          "name": "id",
+          "type": { "primitive": "string" },
+          "required": true,
+          "format": "uuid",
+          "description": "Widget identifier."
+        },
+        {
+          "name": "color",
+          "type": { "primitive": "string" },
+          "required": true,
+          "enum": ["red", "green", "blue"],
+          "description": "Widget color."
+        },
+        {
+          "name": "size",
+          "type": { "primitive": "integer" },
+          "required": false,
+          "format": "int32",
+          "description": "Widget size in mm."
+        }
+      ]
+    },
+    {
+      "name": "WidgetCreate",
+      "kind": "object",
+      "description": "Payload to create a widget.",
+      "fields": [
+        {
+          "name": "color",
+          "type": { "primitive": "string" },
+          "required": true,
+          "enum": ["red", "green", "blue"]
+        },
+        {
+          "name": "size",
+          "type": { "primitive": "integer" },
+          "required": false,
+          "format": "int32"
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": "WIDGET_NOT_FOUND",
+      "scope": "endpoint:GET /widgets/{id}",
+      "status": 404,
+      "body": { "$ref": "ApiError" },
+      "description": "The requested widget does not exist."
+    },
+    {
+      "code": "WIDGET_VALIDATION_FAILED",
+      "scope": "endpoint:POST /widgets",
+      "status": 400,
+      "body": { "$ref": "ApiError" },
+      "description": "Validation failed on the create payload."
+    }
+  ],
+  "examples": [
+    {
+      "name": "createWidgetRedSmall",
+      "endpoint": "POST /widgets",
+      "language": "curl",
+      "code": "curl -X POST https://api.widget.example.com/v1/widgets -H 'Authorization: Bearer $TOKEN' -H 'Content-Type: application/json' -d '{\"color\":\"red\",\"size\":12}'",
+      "source_origin": "specified"
+    }
+  ],
+  "extensions": {}
+}

@@ -1,0 +1,17 @@
+# Build / runtime
+node_modules/
+dist/
+build/
+coverage/
+.nyc_output/
+*.tsbuildinfo
+
+# OS / editor
+.DS_Store
+*.log
+*.swp
+
+# Orchestration-internal scratchpad (NEVER ship)
+task.md
+.orchestray/
+.claude/
