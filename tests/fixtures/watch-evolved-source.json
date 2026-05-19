@@ -1,0 +1,91 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "watch-api",
+    "version": "2.0.0"
+  },
+  "servers": [
+    { "url": "https://api.watch.example.com/v1" }
+  ],
+  "paths": {
+    "/widgets/{widgetId}": {
+      "get": {
+        "operationId": "getWidget",
+        "summary": "Get a widget by ID.",
+        "description": "Returns the widget identified by the given ID.",
+        "tags": ["widgets"],
+        "parameters": [
+          {
+            "name": "widgetId",
+            "in": "path",
+            "required": true,
+            "description": "Widget identifier (renamed from id).",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Widget found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id":   { "type": "string" },
+                    "name": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Widget not found."
+          }
+        }
+      }
+    },
+    "/widgets": {
+      "get": {
+        "operationId": "listWidgets",
+        "summary": "List all widgets.",
+        "description": "Returns a list of widgets.",
+        "tags": ["widgets"],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Max number of widgets to return.",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of widgets.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "type": "object" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Widget": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id":    { "type": "string",  "description": "Widget ID." },
+          "name":  { "type": "string",  "description": "Widget name." },
+          "color": { "type": "string",  "description": "Widget color." }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "apifier_version": "0.3.0",
+  "kind": "apifier-mapping",
+  "service": {
+    "name": "watch-api",
+    "display_name": "Watch API",
+    "version": "1.0.0"
+  },
+  "source": {
+    "type": "openapi",
+    "url": "https://watch.example.com/openapi.json",
+    "file_path": null,
+    "fetched_at": "2026-05-01T10:00:00.000Z",
+    "sha256": "aabbccddeeff00112233445566778899aabbccddeeff001122334455667788990011",
+    "bytes": 512,
+    "robots_respected": true,
+    "parser": {
+      "name": "openapi-parser",
+      "version": "1.0.0"
+    },
+    "parser_warnings": []
+  },
+  "auth": [],
+  "servers": [
+    { "url": "https://api.watch.example.com/v1", "description": "production" }
+  ],
+  "endpoints": [
+    {
+      "id": "getWidget",
+      "transport": "http",
+      "method": "GET",
+      "path": "/widgets/{id}",
+      "summary": "Get a widget by ID.",
+      "description": "Returns the widget identified by the given ID.",
+      "tags": ["widgets"],
+      "path_params": [
+        {
+          "name": "id",
+          "type": { "primitive": "string" },
+          "required": true,
+          "description": "Widget identifier."
+        }
+      ],
+      "query_params": [],
+      "headers": [],
+      "cookies": [],
+      "responses": {
+        "200": {
+          "description": "Widget found.",
+          "schema": { "$ref": "Widget" }
+        },
+        "404": {
+          "description": "Widget not found."
+        }
+      }
+    },
+    {
+      "id": "listWidgets",
+      "transport": "http",
+      "method": "GET",
+      "path": "/widgets",
+      "summary": "List all widgets.",
+      "description": "Returns a list of widgets.",
+      "tags": ["widgets"],
+      "path_params": [],
+      "query_params": [
+        {
+          "name": "limit",
+          "type": { "primitive": "integer" },
+          "required": false,
+          "description": "Max number of widgets to return."
+        }
+      ],
+      "headers": [],
+      "cookies": [],
+      "responses": {
+        "200": {
+          "description": "List of widgets.",
+          "schema": { "array": { "$ref": "Widget" } }
+        }
+      }
+    },
+    {
+      "id": "deleteWidget",
+      "transport": "http",
+      "method": "DELETE",
+      "path": "/widgets/{id}",
+      "summary": "Delete a widget.",
+      "description": "Deletes the widget with the given ID.",
+      "tags": ["widgets"],
+      "path_params": [
+        {
+          "name": "id",
+          "type": { "primitive": "string" },
+          "required": true,
+          "description": "Widget identifier."
+        }
+      ],
+      "query_params": [],
+      "headers": [],
+      "cookies": [],
+      "responses": {
+        "204": {
+          "description": "Deleted successfully."
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "name": "Widget",
+      "kind": "object",
+      "description": "A widget object.",
+      "fields": [
+        { "name": "id",    "type": { "primitive": "string" },  "required": true,  "description": "Widget ID." },
+        { "name": "name",  "type": { "primitive": "string" },  "required": true,  "description": "Widget name." },
+        { "name": "color", "type": { "primitive": "string" },  "required": false, "description": "Widget color." }
+      ]
+    }
+  ]
+}

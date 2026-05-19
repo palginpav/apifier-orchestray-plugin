@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "name": "apifier",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Scrape and ingest external API documentation (OpenAPI, Postman, AsyncAPI, GraphQL, gRPC, HTML, Markdown) into a portable apifier-mapping.json file; generate language-specific client modules from a mapping; validate and self-check.",
   "entrypoint": "server.js",
   "transport": "stdio",
@@ -109,6 +109,25 @@
           "mapping_a": { "type": "string", "description": "Absolute path to the BASELINE mapping (the 'old' version)." },
           "mapping_b": { "type": "string", "description": "Absolute path to the CANDIDATE mapping (the 'new' version)." },
           "format":    { "type": "string", "enum": ["structured", "summary"], "default": "structured", "description": "structured = full ChangeReport JSON. summary = top-line counts + verdict." }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "apifier-watch",
+      "description": "Re-scrape an API doc source and diff the result against a committed baseline mapping. Returns the SemVer-classified change report PLUS a should_block boolean derived from a configurable severity threshold. Designed for CI gates: 'block PR if upstream API changes break our pinned baseline'. Atomic operation — fresh scrape + diff + verdict in one call.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["source", "baseline_path"],
+        "properties": {
+          "source":         { "type": "string", "minLength": 1, "maxLength": 4096, "description": "URL, absolute file path, or inline spec text. Same accepted shape as apifier-scrape." },
+          "baseline_path":  { "type": "string", "description": "Absolute path to the committed baseline apifier-mapping.json." },
+          "service_name":   { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$", "description": "Slug used for the freshly-scraped mapping filename. Defaults to a slug derived from the spec title or URL hostname." },
+          "output_dir":     { "type": "string", "description": "Where to write the fresh scrape. Defaults to ~/.orchestray/apifier/mappings/. Must be inside the allowed-roots list." },
+          "block_on":       { "type": "string", "enum": ["breaking", "minor", "patch", "none"], "default": "breaking", "description": "Severity threshold at which should_block becomes true. 'breaking' blocks only major verdicts; 'minor' also blocks minor verdicts; 'patch' blocks any change; 'none' never blocks (report-only)." },
+          "obey_robots_txt": { "type": "boolean", "default": true },
+          "timeout_ms":     { "type": "integer", "minimum": 1000, "maximum": 55000, "default": 30000 },
+          "source_type":    { "type": "string", "enum": ["auto","openapi","swagger","postman","asyncapi","graphql-sdl","grpc-proto","html","markdown","sitemap"], "default": "auto" }
         },
         "additionalProperties": false
       }
