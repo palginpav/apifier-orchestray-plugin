@@ -11,6 +11,10 @@ coverage/
 *.log
 *.swp
 
+# Python (py_compile artefacts from test runs)
+__pycache__/
+*.pyc
+
 # Orchestration-internal scratchpad (NEVER ship)
 task.md
 .orchestray/
