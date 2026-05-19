@@ -10,9 +10,11 @@ without scraping the service again.
 
 ## Status
 
-**v0.0.1 — scaffold only.** The plugin manifest, module skeleton, and MCP tool surface
-are defined and stubbed. No real parsing or codegen runs yet. See
-[ROADMAP.md](ROADMAP.md) for when each capability arrives.
+**v0.1.0 — first public release; ts-fetch + python-requests codegen targets live.**
+All 5 MCP tools are real: `apifier-scrape` ingests OpenAPI 3.0/3.1 (JSON or YAML),
+`apifier-generate` emits typed TypeScript fetch clients and Python requests clients,
+`apifier-validate` / `apifier-list` / `apifier-doctor` are fully operational.
+See [ROADMAP.md](ROADMAP.md) for planned targets (ts-axios, python-httpx, openapi-3.1).
 
 ## How it works
 
@@ -28,10 +30,29 @@ are defined and stubbed. No real parsing or codegen runs yet. See
 
 ## Install
 
-Installation instructions will be added once the plugin is packaged for distribution.
-In the meantime, refer to the **plugin-authoring guide** that ships with your
-orchestray install (`docs/plugin-authoring-guide.md` under the orchestray repo
-root) for how to register a local plugin with Orchestray.
+APIfier is published to npm as `apifier-orchestray-plugin`.
+
+**Via orchestray plugin manager (recommended):**
+
+```sh
+orchestray plugin add apifier-orchestray-plugin
+# orchestray will prompt to approve the plugin and reload the server
+```
+
+After approval, reload: `orchestray reload` (or restart Claude Code). APIfier's 5 MCP
+tools become available in the PM immediately.
+
+**Local install for development:**
+
+```sh
+git clone https://github.com/palginpav/apifier-orchestray-plugin.git
+npm install
+node bin/apifier-doctor.js   # verify 3 green checks
+```
+
+Register the local clone with orchestray using `orchestray plugin add --local <path>`
+per the plugin-authoring guide (`docs/plugin-authoring-guide.md` in your orchestray
+install).
 
 ## Use
 
@@ -80,8 +101,17 @@ Emit a language-specific client module from a mapping file.
 }
 ```
 
-Available targets: `ts-fetch`, `ts-axios`, `python-requests`, `python-httpx`,
-`go-net-http`, `curl-shell`, `openapi-3.1`. In v0.0.1 all targets return stubs.
+Available targets:
+
+| Target           | Status   | Wave |
+|------------------|----------|------|
+| `ts-fetch`       | **LIVE** | 4A   |
+| `python-requests`| **LIVE** | 4B   |
+| `ts-axios`       | planned  | 4C   |
+| `python-httpx`   | planned  | 4C   |
+| `openapi-3.1`    | planned  | 4C   |
+| `go-net-http`    | planned  | 6+   |
+| `curl-shell`     | planned  | 6+   |
 
 ### `apifier-validate`
 

@@ -23,100 +23,75 @@ handlers, and complete documentation.
 
 ---
 
-## Wave 2 — Doc Scraper
+## Wave 2A — OpenAPI Vertical Slice (DONE)
 
-**Goal:** `apifier-scrape` produces real mapping files from live and local API docs.
+**Commit:** `f7f7916` (bundled with Wave 1 scaffold) through `3953cda`
 
-**Agent mix:** coder (primary), tester.
-
-**Decomposition:**
-- Implement `lib/http/fetch.js` (undici wrapper: redirect cap, byte cap, timeout,
-  User-Agent).
-- Implement `lib/http/robots.js` (robots-parser integration).
-- Implement `lib/detect.js` (signature heuristics for all source_type enum values).
-- Implement each parser in `lib/parsers/`:
-  - `openapi.js` — `@scalar/openapi-parser` dereference → IR.
-  - `postman.js` — `postman-collection` SDK → IR.
-  - `asyncapi.js` — `@asyncapi/parser` channels → IR.
-  - `graphql.js` — SDL / introspection root fields → IR.
-  - `grpc-proto.js` — `protobufjs` RPC methods → IR.
-  - `html.js` — `cheerio` selector heuristics → IR.
-  - `markdown.js` — `remark` + regex curl-example extraction → IR.
-- Implement `lib/parsers/sitemap-crawler.js` for sitemap-guided HTML crawls.
-- Wire parsers into the `apifier-scrape` tool handler (replace stub).
-- Unit tests: one canonical fixture per parser, one path-traversal test per write path.
-
-**Requires answers to open questions 1, 3, 5** (see below).
+End-to-end OpenAPI 3.0/3.1 ingest: `apifier-scrape` → mapping on disk →
+`apifier-validate`. Mapping schema v1 with provenance, canonical byte-stable
+writer, no-throw reader.
 
 ---
 
-## Wave 3 — Mapping-File Producer
+## Wave 2B — YAML + list + doctor (DONE)
 
-**Goal:** `lib/mapping/build.js`, `write.js`, and `read.js` produce schema-valid,
-byte-stable mapping files from Wave 2's parsed IR.
+**Commits:** `3953cda` feat, `3c9b136` fix nits
 
-**Agent mix:** coder (primary), tester.
-
-**Decomposition:**
-- Implement `lib/mapping/schema.js` — Zod schema compiled from the W2 mapping-schema
-  decision; also exports a JSON Schema for external tools.
-- Implement `lib/mapping/build.js` — IR → mapping JSON with provenance fields
-  (`source.sha256`, `source.fetched_at`, `source.parser`).
-- Implement `lib/mapping/write.js` — atomic `mkdtempSync` + Zod validate + `rename`;
-  full path-traversal stack.
-- Implement `lib/mapping/read.js` — read, JSON-parse, schema-validate.
-- Implement `lib/mapping/migrate.js` stubs — one no-op entry for v1 → v1 (real
-  migrations ship when schema_version bumps).
-- Integration test: fixture HTTP server → `apifier-scrape` → mapping on disk →
-  `apifier-validate` passes → `apifier-list` surfaces it → `apifier-doctor` ok.
-
-**Requires answer to open question 4** (GraphQL endpoint identity model).
+YAML support in `apifier-scrape` via js-yaml (safe-mode JSON_SCHEMA).
+`apifier-list` and `apifier-doctor` MCP tools — no longer stubs.
 
 ---
 
-## Wave 4 — Language Code-Generators
+## Wave 2C — robots.txt + sitemap (DONE)
 
-**Goal:** `apifier-generate` with `target=ts-fetch` produces a usable, typed TypeScript
-client; `target=openapi-3.1` round-trips a clean OAS 3.1 YAML from any mapping.
+**Commits:** `462887c` feat, `616968f` fix nits
 
-**Agent mix:** coder (primary), tester.
-
-**Decomposition:**
-- Implement `lib/codegen/ts-fetch.js` — emits a single `.ts` file:
-  - Type aliases for every `models[]` entry.
-  - `<ServiceName>Client` class with one async method per endpoint.
-  - Auth-helper methods (`setBearerToken`, `setApiKey`, etc.) based on `auth[]`.
-  - Error class hierarchy per `W2-mapping-schema.md` §5.4.
-  - Init-guide header comment (§5.3).
-  - Byte-deterministic output (endpoints sorted by canonical order).
-- Implement `lib/codegen/openapi-3.1.js` — emit OAS 3.1 YAML from mapping.
-- Update `lib/codegen/_registry.js` — register the two real targets; all others remain
-  `not_supported`.
-- Document how to add a new language target: implement `lib/codegen/<target>.js`
-  exporting `async function generate(mapping, opts) → { text, ext }`, register it in
-  `_registry.js`, add an enum value to `apifier-generate.target` inputSchema.
-- Unit tests: ts-fetch round-trip of the widgets worked example from
-  `W2-mapping-schema.md §7`.
-
-**Requires answer to open question 2** (codegen target priority confirmation).
+robots.txt enforcement (`lib/http/robots.js`) + sitemap.xml crawler
+(`lib/http/sitemap.js`) with sitemap-index expansion. Same-origin guard;
+5 MB body cap; in-memory origin cache.
 
 ---
 
-## Wave 5 — Packaging & Marketplace
+## Wave 2D — HTML + Markdown parsers (OPEN)
 
-**Goal:** the plugin is published to npm and listable in the orchestray marketplace.
+`lib/parsers/html.js` (cheerio selector heuristics) and `lib/parsers/markdown.js`
+(remark + regex curl-example extraction). Blocked on confirming Playwright as
+optional dependency (open question 1).
 
-**Agent mix:** coder, documenter.
+---
 
-**Decomposition:**
-- Finalise `package.json` (name, description, keywords, files, bin, engines).
-- Write `CHANGELOG.md` with v0.1.0 entry.
-- `npm publish` to the public registry.
-- Submit marketplace listing once the orchestray marketplace accepts community plugins.
-- Plugin signing — when orchestray supports it, sign the package and record the
-  signing key in the manifest's `capabilities` block.
-- Manual smoke tests against real-world targets: Stripe OpenAPI export, GitHub REST
-  OpenAPI, GitLab OpenAPI, Postman public workspaces.
+## Wave 4A — ts-fetch codegen (DONE)
+
+**Commits:** `5de226f` feat, `cd43194` fix nits
+
+`apifier-generate` with `target=ts-fetch` produces a byte-deterministic TypeScript
+fetch-based client. Type aliases, `<ServiceName>Client` class, auth helpers.
+
+---
+
+## Wave 4B — python-requests codegen (DONE)
+
+**Commits:** `1f73f67` feat, `5197344` fix nits, `65b6ad4` chore
+
+`apifier-generate` with `target=python-requests` emits Python 3.8+ requests-based
+client. Byte-deterministic; py_compile clean.
+
+---
+
+## Wave 4C — Additional codegen targets (OPEN)
+
+Planned targets: `ts-axios`, `python-httpx`, `openapi-3.1`. Implement
+`lib/codegen/<target>.js` exporting `generate(mapping, opts) → { text, ext }`,
+register in `_registry.js`.
+
+---
+
+## Wave 5 — Packaging & Marketplace (DONE)
+
+**Commits:** W18
+
+`package.json` v0.1.0 with full publish metadata, `CHANGELOG.md`, README updated,
+ROADMAP updated. `npm publish` and marketplace submission pending manual step.
 
 ---
 
@@ -130,8 +105,8 @@ Ideas for future waves; none are committed:
   scrape sessions.
 - **Change-detection diffing** — re-scrape a service, diff the new mapping against the
   committed one, and surface added/removed/changed endpoints in a human-readable report.
-- **Python requests-client codegen** — `lib/codegen/python-requests.js`.
 - **Go net/http codegen** — `lib/codegen/go-net-http.js`.
+- **curl-shell codegen** — `lib/codegen/curl-shell.js`.
 - **Postman collection export** — emit a Postman 2.1 collection from a mapping.
 
 ---
