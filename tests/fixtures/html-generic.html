@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<!-- html-generic.html: Generic page with h2-level METHOD /path headings (GitHub Pages / Jekyll style) -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple API Docs</title>
+</head>
+<body>
+  <h1>Simple API Documentation</h1>
+  <p>Base URL: <code>https://api.example.com</code></p>
+
+  <h2>GET /widgets</h2>
+  <p>Returns a list of all widgets available in your account.</p>
+
+  <pre><code class="language-shell">curl https://api.example.com/widgets \
+  -H "Authorization: Bearer TOKEN"</code></pre>
+
+  <h2>POST /widgets</h2>
+  <p>Create a new widget. Requires a JSON body.</p>
+
+  <pre><code class="language-json">{"color": "blue", "size": 10}</code></pre>
+
+  <pre><code class="language-shell">curl -X POST https://api.example.com/widgets \
+  -d '{"color": "blue"}'</code></pre>
+</body>
+</html>

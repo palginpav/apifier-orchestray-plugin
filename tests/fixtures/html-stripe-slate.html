@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<!-- html-stripe-slate.html: Three-column Stripe/Slate layout with 2 endpoint blocks -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Widgets API Reference</title>
+</head>
+<body>
+  <div class="content">
+    <h1>Widgets API</h1>
+    <p>The Widgets API allows you to create and manage widgets.</p>
+
+    <h2>Authentication</h2>
+    <p>The Widgets API uses Bearer token authentication. Include your API token in the Authorization header.</p>
+    <pre><code class="language-shell">curl https://api.example.com/v1/widgets \
+  -H "Authorization: Bearer YOUR_TOKEN"</code></pre>
+
+    <h2>POST /v1/widgets</h2>
+    <p>Creates a new widget. Returns the created widget object.</p>
+
+    <table>
+      <thead>
+        <tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>color</td><td>string</td><td>required</td><td>The color of the widget</td></tr>
+        <tr><td>size</td><td>integer</td><td>false</td><td>Widget size in mm</td></tr>
+      </tbody>
+    </table>
+
+    <pre><code class="language-shell">curl -X POST https://api.example.com/v1/widgets \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"color": "red", "size": 12}'</code></pre>
+
+    <pre><code class="language-json">{
+  "id": "wgt_abc123",
+  "color": "red",
+  "size": 12
+}</code></pre>
+
+    <h2>GET /v1/widgets/{id}</h2>
+    <p>Retrieves a widget by its unique identifier.</p>
+
+    <table>
+      <thead>
+        <tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>id</td><td>string</td><td>required</td><td>The widget identifier</td></tr>
+      </tbody>
+    </table>
+
+    <pre><code class="language-shell">curl https://api.example.com/v1/widgets/wgt_abc123 \
+  -H "Authorization: Bearer YOUR_TOKEN"</code></pre>
+
+    <pre><code class="language-json">{
+  "id": "wgt_abc123",
+  "color": "red",
+  "size": 12
+}</code></pre>
+
+    <h2>DELETE /v1/widgets/{id}</h2>
+    <p>Deletes a widget by id. Returns 204 on success.</p>
+
+    <pre><code class="language-shell">curl -X DELETE https://api.example.com/v1/widgets/wgt_abc123 \
+  -H "Authorization: Bearer YOUR_TOKEN"</code></pre>
+  </div>
+</body>
+</html>

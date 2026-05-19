@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<!-- html-docusaurus.html: Docusaurus-shaped markup with sidebar nav and 1 API endpoint -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Widget - Widgets API</title>
+</head>
+<body class="theme-doc-page">
+  <nav class="navbar--fixed-top navbar__inner">
+    <a href="/">Widgets API</a>
+  </nav>
+  <div class="row">
+    <aside class="col col--3">
+      <nav class="sidebar">
+        <ul>
+          <li><a href="/docs/widgets">Widgets</a></li>
+          <li><a href="/docs/users">Users</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <main class="col col--7">
+      <article class="theme-doc-markdown">
+        <h1>Widgets API</h1>
+        <p>Use the Widgets API to manage your widgets.</p>
+
+        <div class="openapi__method-endpoint">
+          <span class="openapi__method-badge openapi__method-badge--post">POST</span>
+          <code>/widgets</code>
+        </div>
+        <p>Creates a new widget in your account.</p>
+
+        <table class="openapi-tabs__schema-table">
+          <thead>
+            <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>color</td><td>string</td><td>true</td><td>Widget color</td></tr>
+            <tr><td>size</td><td>integer</td><td>false</td><td>Widget size</td></tr>
+          </tbody>
+        </table>
+
+        <h3>GET /widgets/{id}</h3>
+        <p>Retrieves a widget by ID.</p>
+        <pre><code class="language-shell">curl https://api.example.com/widgets/123</code></pre>
+      </article>
+    </main>
+  </div>
+</body>
+</html>
